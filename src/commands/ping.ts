@@ -11,4 +11,5 @@ async function execute(interaction: CommandInteraction): Promise<void> {
 export const PING: Command = {
     data,
     execute,
+    prodReady: true,
 };
