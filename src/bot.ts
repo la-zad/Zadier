@@ -35,6 +35,10 @@ export class Bot extends Client {
         });
     }
 
+    get slashCommands(): Collection<string, Command> {
+        return this.commands;
+    }
+
     public async registerSlashCommands(): Promise<void> {
         const commands = this.commands.map((cmd) => cmd.data.toJSON());
 
