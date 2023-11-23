@@ -1,10 +1,9 @@
-import { COMMANDS } from '@commands';
+import { type Command, COMMANDS } from '@commands';
 import { EVENTS } from '@events';
-import type { SlashCommandBuilder } from 'discord.js';
 import { Client, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
 
 export class Bot extends Client {
-    private commands: Collection<string, SlashCommandBuilder> = new Collection();
+    private commands: Collection<string, Command> = new Collection();
 
     constructor(
         private readonly TOKEN: string,
@@ -37,7 +36,7 @@ export class Bot extends Client {
     }
 
     public async registerSlashCommands(): Promise<void> {
-        const commands = this.commands.map((cmd) => cmd.toJSON());
+        const commands = this.commands.map((cmd) => cmd.data.toJSON());
 
         const rest = new REST().setToken(this.TOKEN);
 
@@ -64,7 +63,7 @@ export class Bot extends Client {
 
     private registerCommands(): void {
         for (const command of COMMANDS) {
-            this.commands.set(command.data.name, command.data);
+            this.commands.set(command.data.name, command);
         }
     }
 
