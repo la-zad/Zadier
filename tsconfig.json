@@ -1,0 +1,10 @@
+{
+    "extends": "@vic1707/tsconfig/bun.json",
+    "compilerOptions": {
+        "paths": {
+            "@commands": ["./src/commands"],
+            "@events": ["./src/events"]
+        }
+    },
+    "include": ["src", ".eslintrc.cjs"]
+}
