@@ -81,3 +81,8 @@ export class Bot extends Client {
         }
     }
 }
+
+export const isBot = (obj: Client): obj is Bot => {
+    // check that slashCommands is a property of obj
+    return 'slashCommands' in obj;
+};
