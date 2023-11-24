@@ -10,7 +10,7 @@
     "prettier:fix": "prettier -w ."
   },
   "devDependencies": {
-    "@vic1707/eslint-config": "^5.0.4",
+    "@vic1707/eslint-config": "^5.1.0",
     "@vic1707/prettier": "^2.0.1",
     "@vic1707/tsconfig": "^5.0.0",
     "bun-types": "latest",
