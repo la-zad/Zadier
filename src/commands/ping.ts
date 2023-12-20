@@ -2,17 +2,15 @@ import type { Command } from '@commands';
 import type { CommandInteraction } from 'discord.js';
 import { SlashCommandBuilder } from 'discord.js';
 
-const data = new SlashCommandBuilder().setName('ping').setDescription('Replies with Pong!');
-
 /*
- * This is the execute function for the ping command.
+ * @command     - ping
+ * @description - Replies with Pong!
+ * @permission  - None
  */
-async function execute(interaction: CommandInteraction): Promise<void> {
-    await interaction.reply('Pong!');
-}
-
 export const PING: Command = {
-    data,
-    execute,
+    data: new SlashCommandBuilder().setName('ping').setDescription('Replies with Pong!'),
+    async execute(interaction: CommandInteraction): Promise<void> {
+        await interaction.reply('Pong!');
+    },
     prodReady: true,
 };
