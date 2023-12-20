@@ -12,5 +12,4 @@ export const PING: Command = {
     async execute(interaction: CommandInteraction): Promise<void> {
         await interaction.reply('Pong!');
     },
-    prodReady: true,
 };
