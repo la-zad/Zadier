@@ -4,10 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "bun src/index.ts",
+    "dev:hot": "bun --hot src/index.ts",
+    "dev:watch": "bun --watch src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./out --target bun",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prettier": "prettier -c .",
-    "prettier:fix": "prettier -w ."
+    "prettier:fix": "prettier -w .",
+    "start": "bun ./out/index.js"
   },
   "devDependencies": {
     "@vic1707/eslint-config": "^5.1.0",

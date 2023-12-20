@@ -1,11 +1,11 @@
-name: Format
+name: Build
 
 on:
     push:
     workflow_dispatch:
 
 jobs:
-    format:
+    build:
         runs-on: ubuntu-latest
         steps:
             - name: checkout
@@ -14,5 +14,5 @@ jobs:
               uses: oven-sh/setup-bun@v1
             - name: install dependencies
               run: bun install
-            - name: lint
-              run: bun prettier
+            - name: build
+              run: bun run build

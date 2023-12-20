@@ -1,0 +1,2 @@
+telemetry = false
+logLevel = "warn" # "debug" | "warn" | "error"

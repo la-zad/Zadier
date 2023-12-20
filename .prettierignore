@@ -6,3 +6,6 @@
 **/bun.lockb
 **/.prettierignore
 **/.gitignore
+**/.env.example
+**/bunfig.toml
+**/Dockerfile

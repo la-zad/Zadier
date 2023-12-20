@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+    hopbot:
+        image: hopbot
+        build: .
+        environment:
+            - TOKEN=dQw4w9WgXcQ
+            - CLIENT_ID=177013
