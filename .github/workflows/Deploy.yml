@@ -17,11 +17,11 @@ jobs:
               uses: actions/checkout@v4
             - name: build Docker image
               run: |
-                  docker build -t hopbot .
+                  docker build -t hopbot:${{ github.ref_name }} .
             - name: Save Docker image as tar file
               run: |
                   mkdir -p ./out
-                  docker save hopbot:latest -o ./out/hopbot.tar
+                  docker save hopbot:${{ github.ref_name }} -o ./out/hopbot.tar
             - name: Save the current date
               id: date
               run: |
@@ -38,19 +38,19 @@ jobs:
                   SCRIPT_BEFORE: |
                       mkdir -p "/home/hopbot/${{ github.ref_name }}"
                       # clean up old containers and images
-                      podman stop hopbot || true
-                      podman rm hopbot || true
-                      podman rmi hopbot || true
+                      podman stop hopbot-${{ github.ref_name }} || true
+                      podman rm hopbot-${{ github.ref_name }} || true
+                      podman rmi hopbot:${{ github.ref_name }} || true
                   SCRIPT_AFTER: |
                       # load the new image
                       podman load -i "/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar"
                       podman run \
                         --detach \
                         --network podman \
-                        --name hopbot \
+                        --name hopbot-${{ github.ref_name }} \
                         --env TZ="Europe/Paris" \
                         --env TOKEN=${{ secrets.TOKEN }} \
                         --env SERVER_ID=${{ secrets.SERVER_ID }} \
                         --env CLIENT_ID=${{ secrets.CLIENT_ID }} \
-                        hopbot
+                        hopbot:${{ github.ref_name }}
                       echo "Deployed successfully"
