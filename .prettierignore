@@ -1,11 +1,18 @@
-**/package.json
-**/package-lock.json
-**/coverage
-**/dist
-**/node_modules
-**/bun.lockb
-**/.prettierignore
-**/.gitignore
-**/.env.example
-**/bunfig.toml
-**/Dockerfile
+## VPS
+vps/
+
+## JS
+package.json
+package-lock.json
+dist
+node_modules
+bun.lockb
+
+## CFG files
+.prettierignore
+.gitignore
+.env.example
+bunfig.toml
+
+## Docker
+Dockerfile
