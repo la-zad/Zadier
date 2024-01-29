@@ -13,6 +13,21 @@ jobs:
         environment:
             name: ${{ github.ref_name }}
         steps:
+            - name: Ensure env is correct
+              run: |
+                  # these are all public infos, no need to hide them
+                  if [ "${{ secrets.REMOTE_USER }}" != "hopbot" ]; then
+                    echo "REMOTE_USER is not 'hopbot', aborting"
+                    exit 1
+                  fi
+                  if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "687640485984206871" ]; then
+                    echo "SERVER_ID is not '687640485984206871', aborting"
+                    exit 1
+                  fi
+                  if [ "${{ github.ref_name }}" == "develop" ] && [ "${{ secrets.SERVER_ID }}" != "1186800402197393499" ]; then
+                    echo "SERVER_ID is not '1186800402197393499', aborting"
+                    exit 1
+                  fi
             - name: checkout
               uses: actions/checkout@v4
             - name: build Docker image
