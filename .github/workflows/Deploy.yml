@@ -51,7 +51,9 @@ jobs:
                   SOURCE: out/hopbot.tar
                   TARGET: /home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar
                   SCRIPT_BEFORE: |
+                      # ensure requirements are met
                       mkdir -p "/home/hopbot/${{ github.ref_name }}"
+                      loginctl enable-linger "hopbot"
                       # clean up old containers and images
                       podman stop "hopbot-${{ github.ref_name }}"
                       podman rm "hopbot-${{ github.ref_name }}"
