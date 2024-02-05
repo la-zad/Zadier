@@ -1,66 +1,18 @@
 #!/bin/bash
 
-source_env() {
-    if [ -f "$1" ]; then
-        # shellcheck disable=SC1090
-        . "$1"
-        return $?
-    else
-        echo "File not found: $1"
-        exit 1
-    fi
-}
-
-exit_on_error() {
-    echo "Error: $1"
-    exit 1
-}
-
-install_packages() {
-    if [ -z "$1" ]; then
-        echo "No packages provided."
-        exit 1
-    fi
-    dnf update -y
-    dnf upgrade -y
-    dnf install -y "$@"
-}
-
-generate_password() {
-    if [ -z "$1" ]; then
-        echo "No length provided."
-        exit 1
-    fi
-    openssl rand -base64 "$1"
-}
-
-create_user() {
-    local USR_HOME
-    if [ -z "$1" ]; then
-        echo "No username provided."
-        exit 1
-    fi
-    mkdir "$GENERATED_FOLDER/$1"
-    
-    PASSWD=$(generate_password 32)
-    useradd -m -p "$PASSWD" "$1"
-    USR_HOME="$(eval echo ~"$1")"
-    
-    echo "$PASSWD" >"$GENERATED_FOLDER/$1/passwd"
-    echo "User $1 created."
-    ## SSH
-    mkdir -p "$USR_HOME/.ssh"
-    ssh-keygen -t ed25519 -f "$GENERATED_FOLDER/$1/github" -C "coindesdev+$1@gmail.com" -N ""
-    cat "$GENERATED_FOLDER/$1/github.pub" >> "$USR_HOME/.ssh/authorized_keys"
-    chmod -R 600 "$USR_HOME/.ssh/authorized_keys"
-    chown "$1":"$1" "$USR_HOME/.ssh/authorized_keys"
-    ## Podman
-    runuser -u "$1" -- podman network create "$1"
-}
-
 PWD="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 USR_HOME="$(eval echo ~"$SUDO_USER")"
 GENERATED_FOLDER="$PWD/generated"
+
+##### Sourcing required files #####
+# shellcheck source=./vps/functions/utils.bash
+. "$PWD/functions/utils.bash"
+# shellcheck source=./vps/functions/user.bash
+. "$PWD/functions/user.bash"
+# shellcheck source=./vps/functions/packages.bash
+. "$PWD/functions/packages.bash"
+
+sudo_required
 
 echo "
     #########################################
@@ -72,12 +24,6 @@ echo "
     USR_HOME: $USR_HOME
     GENERATED_FOLDER: $GENERATED_FOLDER
 "
-
-# Check for root privileges
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root. Please use sudo."
-    exit 1
-fi
 
 ################################# Environment #################################
 echo "Loading environment variables from .env file..."

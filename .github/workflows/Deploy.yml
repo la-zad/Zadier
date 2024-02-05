@@ -49,23 +49,36 @@ jobs:
                   REMOTE_USER: ${{ secrets.REMOTE_USER }}
                   REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
                   SOURCE: out/hopbot.tar
-                  TARGET: '/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar'
+                  TARGET: /home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar
                   SCRIPT_BEFORE: |
                       mkdir -p "/home/hopbot/${{ github.ref_name }}"
                       # clean up old containers and images
-                      podman stop hopbot-${{ github.ref_name }} || true
-                      podman rm hopbot-${{ github.ref_name }} || true
-                      podman rmi hopbot:${{ github.ref_name }} || true
+                      podman stop "hopbot-${{ github.ref_name }}"
+                      podman rm "hopbot-${{ github.ref_name }}"
+                      podman rmi "hopbot:${{ github.ref_name }}"
+                      systemctl --user stop "container-hopbot-${{ github.ref_name }}.service"
+                      systemctl --user disable "container-hopbot-${{ github.ref_name }}.service"
+                      rm "$HOME/.config/systemd/user/container-hopbot-${{ github.ref_name }}.service"
+                      systemctl --user daemon-reload
                   SCRIPT_AFTER: |
                       # load the new image
                       podman load -i "/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar"
-                      podman run \
-                        --detach \
+                      podman create \
                         --network podman \
-                        --name hopbot-${{ github.ref_name }} \
+                        --name "hopbot-${{ github.ref_name }}" \
                         --env TZ="Europe/Paris" \
-                        --env TOKEN=${{ secrets.TOKEN }} \
-                        --env SERVER_ID=${{ secrets.SERVER_ID }} \
-                        --env CLIENT_ID=${{ secrets.CLIENT_ID }} \
-                        hopbot:${{ github.ref_name }}
+                        --env "TOKEN=${{ secrets.TOKEN }}" \
+                        --env "SERVER_ID=${{ secrets.SERVER_ID }}" \
+                        --env "CLIENT_ID=${{ secrets.CLIENT_ID }}" \
+                        "hopbot:${{ github.ref_name }}"
+                      # create the service file
+                      mkdir -p "/home/hopbot/.config/systemd/user"
+                      podman generate systemd \
+                          --new \
+                          --name "hopbot-${{ github.ref_name }}" \
+                          --restart-policy "on-failure" \
+                          > "/home/hopbot/.config/systemd/user/container-hopbot-${{ github.ref_name }}.service"
+                      systemctl --user enable "container-hopbot-${{ github.ref_name }}.service"
+                      systemctl --user daemon-reload
+                      systemctl --user start "container-hopbot-${{ github.ref_name }}.service"
                       echo "Deployed successfully"

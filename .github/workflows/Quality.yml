@@ -1,0 +1,41 @@
+name: Quality checks
+
+on:
+    pull_request:
+        branches:
+            - main
+            - develop
+    workflow_dispatch:
+
+jobs:
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+            - name: Run Beautysh
+              uses: illvart/beautysh-action@latest
+              with:
+                  args: -c -i 4 -s paronly $(find . -not -path "./.git/*" -not -path "./node_modules/*"  \( -name "*.sh" -o -name "*.bash" \))
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+            - name: install dependencies
+              run: bun install
+            - name: lint
+              run: bun prettier
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+            - name: Run ShellCheck
+              uses: ludeeus/action-shellcheck@master
+              env:
+                  # SC1091: Not following. -- is fixed locally but CI still fails
+                  SHELLCHECK_OPTS: -e SC1091 -s bash
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+            - name: install dependencies
+              run: bun install
+            - name: lint
+              run: bun lint

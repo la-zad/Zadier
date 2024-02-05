@@ -27,13 +27,16 @@ ssh "almalinux@$IP" <<EOF
     sudo rm -rf /home/almalinux/{vps-install,.ssh}
 EOF
 
+## Ensure files are executable
+chmod +x "$PWD"/install.bash
+
 ## copy files
 scp -r "$PWD"/ "almalinux@$IP:/home/almalinux/vps-install"
 
 ## run remote script
 ssh "almalinux@$IP" <<EOF
     cd /home/almalinux/vps-install
-    sudo ./install.sh
+    sudo ./install.bash
 EOF
 
 ## download generated files
