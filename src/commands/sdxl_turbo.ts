@@ -29,20 +29,29 @@ namespace hugging_face {
     }
     export interface EventProcessCompleted {
         msg: "process_completed"
-        output?: ProcessOutput
+        output?: Output
         success: boolean
     }
 
     export type Event = EventEstimation | EventSendData | EventProcessStart | EventProcessCompleted;
     
-    export interface ProcessOutput {
-        data: ProcessData[]
+    export interface Input {
+        session_hash: string
+
+        prompt: string
+        strength: number
+        steps: number
+        seed: number
+    }
+
+    export interface Output {
+        data: OutputData[]
         is_generating: boolean
         duration: number
         average_duration: number
     }
     
-    export interface ProcessData {
+    export interface OutputData {
         path: string
         url: string | null
         size: number | null
@@ -50,7 +59,7 @@ namespace hugging_face {
         mime_type: string | null
     }
 
-    export async function send_data<T>(event_id: string, data: T): Promise<boolean> {
+    export async function send_data<T>(event_id: string, session_hash: string, data: T): Promise<boolean> {
         const res = await fetch("https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/queue/data", {
             method: "POST",
             body: JSON.stringify({
@@ -59,7 +68,7 @@ namespace hugging_face {
                 event_data: null,
                 fn_index: 1,
                 trigger_id: 5,
-                session_hash: "sd58xc984e"
+                session_hash
             }),
             headers: {
                 "Content-Type": "application/json"
@@ -73,9 +82,56 @@ interface EventStream {
     value: Uint8Array
 }
 
-function intoValue(evt: EventStream): hugging_face.Event | null {
-    const tstring = new TextDecoder("utf-8").decode(evt.value);
-    const reg = /data: (.*)/.exec(tstring);
+interface Attachment {
+    name: string,
+    attachment: Buffer
+}
+
+function bufferToStream(buffer: Uint8Array): string {
+    return new TextDecoder("utf-8").decode(buffer);
+}
+
+async function getRoot(): Promise<Option<string>> {
+    const res = await fetch("https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/?__theme=light", {
+        method: "GET"
+    });
+    if (res.status != 200) {
+        console.log("Fetch failed: ", res);
+        return null;
+    }
+    const html = await res.text();
+
+    const reg = /(https:\/\/diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space\/--replicas\/\w+)/s.exec(html);
+    if (!(reg && reg[1])) {
+        return null;
+    }
+    console.log("Root found: ", reg[1]);
+    return reg[1];
+}
+
+let ROOT: Option<string> = await getRoot();
+
+async function getFileFromRoot(path: string, force: boolean = true): Promise<Option<ArrayBuffer>> {
+    if (!ROOT) {
+        await getRoot();
+        if (!ROOT) {
+            return null;
+        }
+    }
+    const res = await fetch(`${ROOT}/file=${path}`);
+    if (res.status == 404 && !force) {
+        console.log("File not found, updating root...");
+        ROOT = null
+        return getFileFromRoot(path, false);
+    } else if (res.status != 200) {
+        console.log("Fetch from root failed: ", res);
+        return null;
+    }
+    return res.arrayBuffer();
+}
+
+function intoEvent(value_string: string): hugging_face.Event | null {
+    const reg = /data: (.*)/.exec(value_string);
     if (!(reg && reg[1])) {
         return null;
     }
@@ -83,6 +139,77 @@ function intoValue(evt: EventStream): hugging_face.Event | null {
     const parsed = JSON.parse(data);
     return parsed
 }
+
+class EventReader {
+    private img: Option<Attachment> = null;
+    public constructor(private reader: ReadableStreamDefaultReader<Uint8Array>, private data: hugging_face.Input) 
+    {}
+    public image(): Option<typeof this.img> {
+        return this.img;
+    }
+
+    public async process(): Promise<void> {
+        while (true) {
+            const evt = await this.reader.read();
+            if (evt.done) {
+                return;
+            }
+            const value_string = bufferToStream(evt.value);
+            for (const line of value_string.split("\n")) {
+                if (line === "") {
+                    continue;
+                }
+                console.log("New event: ", line);
+                const evt = intoEvent(line);
+                if (!evt) {
+                    console.log(`Unknown data type: `, line);
+                    continue;
+                }
+                if (!await this.processEvent(evt)) {
+                    return; 
+                }
+            }
+            // const val = intoValue(evt.value);
+        }
+    }
+    private async processEvent(evt: hugging_face.Event): Promise<boolean> {
+        switch (evt.msg) {
+            case "estimation":
+                console.log(`Rank: ${evt.rank}, Queue size: ${evt.queue_size}, ETA: ${evt.rank_eta}, Queue ETA: ${evt.queue_eta}`);
+                break;
+            case "send_data":
+                if (!await hugging_face.send_data(evt.event_id, this.data.session_hash, [null, this.data.prompt, this.data.strength, this.data.steps, this.data.seed])) {
+                    console.log("Send data failed");
+                    return false;
+                } else {
+                    console.log("Send data success");
+                }
+                break;
+            case "process_starts":
+                console.log("Process starts");
+                break;
+            case "process_completed":
+                console.log("Process completed");
+                if (evt.success) {
+                    const data = evt.output?.data[0];
+                    if (data) {
+                        const res = await getFileFromRoot(data.path)
+                        if (!res) {
+                            return false;
+                        }
+                        this.img = {
+                            name: data.orig_name,
+                            attachment: Buffer.from(res)
+                        };
+
+                    }
+                }
+                break;
+        }
+        return true;
+    }
+}
+
 
 /*
  * @command     - sdxl_turbo
@@ -116,6 +243,7 @@ export const SDXL_TURBO: Command = {
     async execute(interaction) {
         const reply = interaction.deferReply();
         const replyError = async (msgError: string) => {
+            console.log(`Error: `, msgError);
             await reply;
             await interaction.editReply(msgError);
         }
@@ -129,8 +257,12 @@ export const SDXL_TURBO: Command = {
         const seed = interaction.options.get('seed')?.value as number || Math.floor(Math.random()*12013012031030);
         const strength = interaction.options.get('strength')?.value as number || 0.7;
         const steps = interaction.options.get('steps')?.value as number || 2;
-
-        const response = await fetch("https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/queue/join?__theme=light&fn_index=1&session_hash=sd58xc984e", {
+        const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+        let session_hash = "";
+        for(let i = 0; i < 10; i++) {
+            session_hash += CHARS[Math.floor(Math.random()*CHARS.length)];
+        }
+        const response = await fetch(`https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/queue/join?__theme=light&fn_index=1&session_hash=${session_hash}`, {
             headers: {
                 "Accept": "text/event-stream"
             },
@@ -142,69 +274,24 @@ export const SDXL_TURBO: Command = {
             replyError("fetch has no body")
             return;
         }
-        const reader = response.body.getReader();
-        let img = null;
-        while (reader && !img) {
-            const evt = await reader?.read() as EventStream;
-            if (!evt) {
-                console.log("No event");
-                continue;
-            }
-            if (evt.done) {
-                console.log("Done");
-                break;
-            };
-            const value = intoValue(evt);
-            console.log("New chunk:", value);
-            if (!value) {
-                console.log("No value");
-                break;
-            }
-            switch (value.msg) {
-                case "estimation":
-                    console.log(`Rank: ${value.rank}, Queue size: ${value.queue_size}, ETA: ${value.rank_eta}, Queue ETA: ${value.queue_eta}`);
-                    break;
-                case "send_data":
+        const reader = response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
-                    if (!await hugging_face.send_data(value.event_id, [null, prompt, strength, steps, seed])) {
-                        console.log("Send data failed");
-                        replyError("Send data failed");
-                        return;
-                    } else {
-                        console.log("Send data success");
-                    }
-                    break;
-                case "process_starts":
-                    console.log("Process starts");
-                    break;
-                case "process_completed":
-                    console.log("Process completed");
-                    if (value.success) {
-                        const data = value.output?.data[0];
-                        if (data) {
-                            const res = await fetch(`https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/--replicas/5miuw/file=${data.path}`);
-                            if (res.status != 200) {
-                                console.log("Fetch failed");
-                                replyError("Fetch failed");
-                                return;
-                            }
-                            img = {
-                                name: data.orig_name,
-                                attachment: Buffer.from(await res.arrayBuffer())
-                            };
+        const event_reader = new EventReader(reader, {
+            session_hash,
+            prompt,
+            strength,
+            steps,
+            seed
+        })
 
-                        }
-                    }
-                    break;
-            }
-        }
-        console.log("response: ", response)
+        await event_reader.process();
+        // console.log("response: ", response)
 
         await reply;
-        
-        if (img) {
+        const image = event_reader.image();
+        if (image) {
             await interaction.editReply({
-                files: [img]
+                files: [image]
             });
         } else {
             await interaction.editReply("No image found");
