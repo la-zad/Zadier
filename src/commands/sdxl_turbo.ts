@@ -77,18 +77,10 @@ namespace hugging_face {
         return res.status == 200;
     }
 }
-interface EventStream {
-    done: boolean
-    value: Uint8Array
-}
 
 interface Attachment {
     name: string,
     attachment: Buffer
-}
-
-function bufferToStream(buffer: Uint8Array): string {
-    return new TextDecoder("utf-8").decode(buffer);
 }
 
 async function getRoot(): Promise<Option<string>> {
@@ -150,7 +142,7 @@ class EventReader {
             if (evt.done) {
                 return;
             }
-            const value_string = bufferToStream(evt.value);
+            const value_string = new TextDecoder("utf-8").decode(evt.value);
             for (const line of value_string.split("\n")) {
                 if (line === "") {
                     continue;
@@ -180,17 +172,17 @@ class EventReader {
             case "process_completed":
                 if (evt.success) {
                     const data = evt.output?.data[0];
-                    if (data) {
-                        const res = await getFileFromRoot(data.path)
-                        if (!res) {
-                            return false;
-                        }
-                        this.img = {
-                            name: data.orig_name,
-                            attachment: Buffer.from(res)
-                        };
-
+                    if (!data) {
+                        return false;
                     }
+                    const res = await getFileFromRoot(data.path)
+                    if (!res) {
+                        return false;
+                    }
+                    this.img = {
+                        name: data.orig_name,
+                        attachment: Buffer.from(res)
+                    };
                 }
                 break;
         }
@@ -229,22 +221,22 @@ export const SDXL_TURBO: Command = {
             .setRequired(false)
         ),
     async execute(interaction) {
-        const reply = interaction.deferReply();
+        const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+        await interaction.deferReply();
         const replyError = async (msgError: string) => {
-            await reply;
             await interaction.editReply(msgError);
         }
 
         // Discord slash command parameters
         const prompt = interaction.options.get('prompt')?.value as string;
-        if (!prompt) {
-            replyError("No prompt provided");
-            return;
-        }
         const seed = interaction.options.get('seed')?.value as number || Math.floor(Math.random()*12013012031030);
         const strength = interaction.options.get('strength')?.value as number || 0.7;
         const steps = interaction.options.get('steps')?.value as number || 2;
-        const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+        if (!prompt) {
+            return replyError("No prompt provided");
+        }
+        
         let session_hash = "";
         for(let i = 0; i < 10; i++) {
             session_hash += CHARS[Math.floor(Math.random()*CHARS.length)];
@@ -253,13 +245,10 @@ export const SDXL_TURBO: Command = {
             headers: {
                 "Accept": "text/event-stream"
             },
-            method: "GET",
-            keepalive: true,
-            timeout: false
+            method: "GET"
         });
         if (!response.body) {
-            replyError("fetch has no body")
-            return;
+            return replyError("fetch has no body")
         }
         const reader = response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
@@ -273,10 +262,10 @@ export const SDXL_TURBO: Command = {
 
         await event_reader.process();
 
-        await reply;
         const image = event_reader.image();
         if (image) {
             await interaction.editReply({
+                content: interaction.options.get('seed') === null ? `Graine: ${seed}` : null,
                 files: [image]
             });
         } else {
