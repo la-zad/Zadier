@@ -96,7 +96,6 @@ async function getRoot(): Promise<Option<string>> {
         method: "GET"
     });
     if (res.status != 200) {
-        console.log("Fetch failed: ", res);
         return null;
     }
     const html = await res.text();
@@ -105,7 +104,6 @@ async function getRoot(): Promise<Option<string>> {
     if (!(reg && reg[1])) {
         return null;
     }
-    console.log("Root found: ", reg[1]);
     return reg[1];
 }
 
@@ -120,11 +118,9 @@ async function getFileFromRoot(path: string, force: boolean = true): Promise<Opt
     }
     const res = await fetch(`${ROOT}/file=${path}`);
     if (res.status == 404 && !force) {
-        console.log("File not found, updating root...");
         ROOT = null
         return getFileFromRoot(path, false);
     } else if (res.status != 200) {
-        console.log("Fetch from root failed: ", res);
         return null;
     }
     return res.arrayBuffer();
@@ -159,10 +155,8 @@ class EventReader {
                 if (line === "") {
                     continue;
                 }
-                console.log("New event: ", line);
                 const evt = intoEvent(line);
                 if (!evt) {
-                    console.log(`Unknown data type: `, line);
                     continue;
                 }
                 if (!await this.processEvent(evt)) {
@@ -174,22 +168,16 @@ class EventReader {
     }
     private async processEvent(evt: hugging_face.Event): Promise<boolean> {
         switch (evt.msg) {
-            case "estimation":
-                console.log(`Rank: ${evt.rank}, Queue size: ${evt.queue_size}, ETA: ${evt.rank_eta}, Queue ETA: ${evt.queue_eta}`);
-                break;
+            // case "estimation":
+            //     break;
             case "send_data":
                 if (!await hugging_face.send_data(evt.event_id, this.data.session_hash, [null, this.data.prompt, this.data.strength, this.data.steps, this.data.seed])) {
-                    console.log("Send data failed");
                     return false;
-                } else {
-                    console.log("Send data success");
                 }
                 break;
-            case "process_starts":
-                console.log("Process starts");
-                break;
+            // case "process_starts":
+            //     break;
             case "process_completed":
-                console.log("Process completed");
                 if (evt.success) {
                     const data = evt.output?.data[0];
                     if (data) {
@@ -227,23 +215,22 @@ export const SDXL_TURBO: Command = {
         )
         .addNumberOption((option) => option
             .setName('strength')
-            .setDescription('La force du bruitage')
+            .setDescription('La force du bruitage (0.7 par défaut)')
             .setRequired(false)
         )
         .addNumberOption((option) => option
             .setName('steps')
-            .setDescription('Le nombre d\'étapes')
+            .setDescription('Le nombre d\'étapes (2 par défaut)')
             .setRequired(false)
         )
         .addNumberOption((option) => option
             .setName('seed')
-            .setDescription('La graine')
+            .setDescription('La graine (aléatoire par défaut)')
             .setRequired(false)
         ),
     async execute(interaction) {
         const reply = interaction.deferReply();
         const replyError = async (msgError: string) => {
-            console.log(`Error: `, msgError);
             await reply;
             await interaction.editReply(msgError);
         }
@@ -285,7 +272,6 @@ export const SDXL_TURBO: Command = {
         })
 
         await event_reader.process();
-        // console.log("response: ", response)
 
         await reply;
         const image = event_reader.image();
@@ -294,7 +280,7 @@ export const SDXL_TURBO: Command = {
                 files: [image]
             });
         } else {
-            await interaction.editReply("No image found");
+            await interaction.editReply("Un problème est survenu...");
         }
 
     },
