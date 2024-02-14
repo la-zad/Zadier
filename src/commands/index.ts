@@ -1,7 +1,7 @@
 import type { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
+import { SDXL_TURBO } from './ai/sdxl_turbo';
 import { PING } from './ping';
-import { SDXL_TURBO } from './sdxl_turbo/sdxl_turbo';
 
 type SlashCommandDescriptor = SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 
