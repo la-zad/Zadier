@@ -1,3 +1,5 @@
+const BASE_URL = 'https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space';
+
 interface EventEstimation {
     msg: 'estimation';
     rank: number;
@@ -47,7 +49,7 @@ interface OutputData {
 }
 
 async function send_data<T>(event_id: string, session_hash: string, data: T): Promise<boolean> {
-    const res = await fetch('https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/queue/data', {
+    const res = await fetch(`${BASE_URL}/queue/data`, {
         method: 'POST',
         body: JSON.stringify({
             data,
@@ -70,7 +72,7 @@ interface Attachment {
 }
 
 async function getRoot(): Promise<Option<string>> {
-    const res = await fetch('https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space/?__theme=light', {
+    const res = await fetch(`${BASE_URL}/?__theme=light`, {
         method: 'GET',
     });
     if (res.status != 200) {
@@ -78,10 +80,11 @@ async function getRoot(): Promise<Option<string>> {
     }
     const html = await res.text();
 
-    const reg = /(https:\/\/diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space\/--replicas\/\w+)/s.exec(html);
+    const reg = new RegExp(`(${BASE_URL.replace('/', '\\/')}\\/--replicas\\/\\w+)`).exec(html);
     if (!reg?.[1]) {
         return null;
     }
+    console.log('ROOT: ', reg[1]);
     return reg[1];
 }
 
