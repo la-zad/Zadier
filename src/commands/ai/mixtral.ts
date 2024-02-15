@@ -59,6 +59,11 @@ export const MIXTRAL: Command = {
         const replyError = async (msgError: string): Promise<void> => {
             await interaction.editReply(msgError);
         };
+
+        if (!replicate.auth) {
+            return replyError("Le token de replicate n'a pas été défini!");
+        }
+
         const input = {
             prompt: interaction.options.get('prompt')?.value as string,
             max_new_tokens: (interaction.options.get('max_new_tokens')?.value as number) || 1024,
