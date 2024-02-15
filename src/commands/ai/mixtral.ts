@@ -103,6 +103,5 @@ export const MIXTRAL: Command = {
             }
         }
         await interaction.editReply(msg);
-        console.log(msg);
     },
 };
