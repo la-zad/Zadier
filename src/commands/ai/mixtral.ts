@@ -42,9 +42,7 @@ export const MIXTRAL: Command = {
         .addNumberOption((option) =>
             option
                 .setName('top_k')
-                .setDescription(
-                    'Le nombre de jetons ayant la probabilité la plus élevée à prendre en compte pour générer la sortie (50 par défaut)',
-                )
+                .setDescription("Le nombre de jetons ayant de l'importance (50 par défaut)")
                 .setRequired(false),
         )
         .addNumberOption((option) =>
@@ -69,9 +67,42 @@ export const MIXTRAL: Command = {
             top_k: (interaction.options.get('top_k')?.value as number) || 50,
             presence_penalty: (interaction.options.get('presence_penalty')?.value as number) || 0,
             frequency_penalty: (interaction.options.get('frequency_penalty')?.value as number) || 0,
+            prompt_template: '<s>[INST] {prompt} [/INST] ',
         };
-        for await (const event of replicate.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
-            
+        if (input.max_new_tokens < 0) {
+            return replyError('Le maximum de jetons est negatif!');
+        } else if (input.max_new_tokens > 10000) {
+            return replyError('Le maximum de jetons est supérieur à 10000, abuses pas frère...');
         }
-    }
-}
+        if (input.temperature < 0 || input.temperature > 2) {
+            return replyError('La valeur de la temperature est invalide! La valeur doit être comprise entre 0 et 2');
+        }
+        if (input.top_p < 0 || input.top_p > 2) {
+            return replyError('La valeur de top_p est invalide! La valeur doit être comprise entre 0 et 2');
+        }
+        // if (input.top_k < 0 || input.top_k > 100) {
+        //     return replyError('La valeur de top_k est invalide!');
+        // }
+        if (input.presence_penalty < -2 || input.presence_penalty > 2) {
+            return replyError('La valeur de presence_penalty est invalide! La valeur doit être comprise entre -2 et 2');
+        }
+        if (input.frequency_penalty < -2 || input.frequency_penalty > 2) {
+            return replyError(
+                'La valeur de frequency_penalty est invalide! La valeur doit être comprise entre -2 et 2',
+            );
+        }
+        let msg = '';
+        let last_time = Date.now();
+        for await (const event of replicate.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
+            if (event.event === 'output') {
+                msg += event.data;
+            }
+            if (Date.now() - last_time > 500 && msg !== '') {
+                await interaction.editReply(msg);
+                last_time = Date.now();
+            }
+        }
+        await interaction.editReply(msg);
+        console.log(msg);
+    },
+};
