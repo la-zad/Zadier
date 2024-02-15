@@ -24,13 +24,15 @@ interface EventProcessCompleted {
 
 type Event = EventEstimation | EventSendData | EventProcessStart | EventProcessCompleted;
 
-interface Input {
-    session_hash: string;
-
+export interface Input {
     prompt: string;
     strength: number;
     steps: number;
     seed: number;
+}
+interface InputData {
+    session_hash: string;
+    input: Input;
 }
 
 interface Output {
@@ -66,7 +68,7 @@ async function send_data<T>(event_id: string, session_hash: string, data: T): Pr
     return res.status == 200;
 }
 
-interface Attachment {
+export interface Attachment {
     name: string;
     attachment: Buffer;
 }
@@ -121,7 +123,7 @@ export class EventReader {
     private img: Option<Attachment> = null;
     public constructor(
         private reader: ReadableStreamDefaultReader<Uint8Array>,
-        private data: Input,
+        private data: InputData,
     ) {}
     public image(): Option<typeof this.img> {
         return this.img;
@@ -148,6 +150,33 @@ export class EventReader {
             }
         }
     }
+    public static async generateImage(input: Input): Promise<Option<Attachment>> {
+        const CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+        let session_hash = '';
+        for (let i = 0; i < 10; i++) {
+            session_hash += CHARS[Math.floor(Math.random() * CHARS.length)];
+        }
+        const response = await fetch(`${BASE_URL}/join?__theme=light&fn_index=1&session_hash=${session_hash}`, {
+            headers: {
+                Accept: 'text/event-stream',
+            },
+            method: 'GET',
+        });
+        if (!response.body) {
+            return null;
+        }
+        const reader = response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
+
+        const event_reader = new EventReader(reader, {
+            session_hash,
+            input,
+        });
+
+        await event_reader.process();
+
+        return event_reader.image();
+    }
     private async processEvent(evt: Event): Promise<boolean> {
         switch (evt.msg) {
             // case "estimation":
@@ -155,11 +184,11 @@ export class EventReader {
             case 'send_data':
                 if (
                     !(await send_data(evt.event_id, this.data.session_hash, [
-                        null,
-                        this.data.prompt,
-                        this.data.strength,
-                        this.data.steps,
-                        this.data.seed,
+                        this.data.session_hash,
+                        this.data.input.prompt,
+                        this.data.input.strength,
+                        this.data.input.steps,
+                        this.data.input.seed,
                     ]))
                 ) {
                     return false;
