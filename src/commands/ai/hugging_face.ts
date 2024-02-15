@@ -73,6 +73,17 @@ export interface Attachment {
     attachment: Buffer;
 }
 
+export function randomString(
+    length: number,
+    characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+): string {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
 async function getRoot(): Promise<Option<string>> {
     const res = await fetch(`${BASE_URL}/?__theme=light`, {
         method: 'GET',
@@ -151,13 +162,10 @@ export class EventReader {
         }
     }
     public static async generateImage(input: Input): Promise<Option<Attachment>> {
-        const CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
+        const CHARSET = '0123456789abcdefghijklmnopqrstuvwxyz';
 
-        let session_hash = '';
-        for (let i = 0; i < 10; i++) {
-            session_hash += CHARS[Math.floor(Math.random() * CHARS.length)];
-        }
-        const response = await fetch(`${BASE_URL}/join?__theme=light&fn_index=1&session_hash=${session_hash}`, {
+        const session_hash = randomString(10, CHARSET);
+        const response = await fetch(`${BASE_URL}/queue/join?__theme=light&fn_index=1&session_hash=${session_hash}`, {
             headers: {
                 Accept: 'text/event-stream',
             },
@@ -184,7 +192,7 @@ export class EventReader {
             case 'send_data':
                 if (
                     !(await send_data(evt.event_id, this.data.session_hash, [
-                        this.data.session_hash,
+                        null,
                         this.data.input.prompt,
                         this.data.input.strength,
                         this.data.input.steps,

@@ -1,5 +1,6 @@
 import type { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
+import { GEN_EMOJI } from './ai/gen_emoji';
 import { SDXL_TURBO } from './ai/sdxl_turbo';
 import { PING } from './ping';
 
@@ -10,4 +11,4 @@ export type Command = {
     execute: (interaction: CommandInteraction) => Promise<void>;
 };
 
-export const COMMANDS: Array<Command> = [PING, SDXL_TURBO];
+export const COMMANDS: Array<Command> = [PING, SDXL_TURBO, GEN_EMOJI];
