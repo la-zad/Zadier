@@ -16,4 +16,4 @@ export type SpecificBotEvent<K extends keyof ClientEvents> = {
     once: boolean;
 };
 
-export const EVENTS = [COMMAND_HANDLER, READY];
+export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY];
