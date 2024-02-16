@@ -2,11 +2,11 @@ import { DURATION_TMP_EMOJI } from '@constants';
 import type { BotEvent } from '@events';
 
 /*
- * @event       - onReady - Cleanup
+ * @event       - onReady - Cleanup temporary emojis
  * @description - Gestion de la suppression des emojis temporaires
  * @permission  - None
  */
-export const CLEANUP: BotEvent = {
+export const CLEANUP_EMOJIS: BotEvent = {
     name: 'Clean up temporary emojis',
     listenTo: 'ready',
     async execute(client) {
@@ -14,10 +14,8 @@ export const CLEANUP: BotEvent = {
         const guilds = await client.guilds.fetch();
         for await (const oauth2guild of guilds.values()) {
             const guild = await oauth2guild.fetch();
-            console.log(`Cleanup ${guild.name}`);
             const emojis = await guild.emojis.fetch();
             for await (const emoji of emojis.values()) {
-                console.log(`Cleanup emoji ${emoji.name}`);
                 if (!emoji.name?.startsWith('tmp_')) {
                     continue;
                 }
