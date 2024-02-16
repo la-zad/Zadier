@@ -74,12 +74,13 @@ export class Bot extends Client {
     }
 
     public start(): Promise<void> {
+        // Set up events before login, otherwise, the ready event will not fire
+        this.setUpEvents();
         return this.login(this.TOKEN)
             .then(() => this.guilds.fetch())
             .then(async (guilds) => {
                 await this.clearCommands();
                 await this.clearApplicationCommands();
-                this.setUpEvents();
                 this.setUpCommands();
                 return this.registerSlashCommands(guilds);
             });
@@ -102,11 +103,11 @@ export class Bot extends Client {
             // else TSserver will complain about the type of event.execute
             // saying its too weak to calculate the type EvenHandler
             // so we have to cast it to the correct type
-            type EventHandler = SpecificBotEvent<typeof event.name>['execute'];
+            type EventHandler = SpecificBotEvent<typeof event.listenTo>['execute'];
             if (event.once) {
-                this.once(event.name, event.execute as EventHandler);
+                this.once(event.listenTo, event.execute as EventHandler);
             } else {
-                this.on(event.name, event.execute as EventHandler);
+                this.on(event.listenTo, event.execute as EventHandler);
             }
         }
     }
