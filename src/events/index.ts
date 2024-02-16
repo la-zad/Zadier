@@ -1,5 +1,6 @@
 import type { ClientEvents } from 'discord.js';
 
+import { CLEANUP } from './cleanup';
 import { COMMAND_HANDLER } from './commandHandler';
 import { DYN_VOCAL_ON_CONNECT } from './dyn_vocal/on_connect';
 import { DYN_VOCAL_ON_DISCONNECT } from './dyn_vocal/on_disconnect';
@@ -18,4 +19,4 @@ export type SpecificBotEvent<K extends keyof ClientEvents> = {
     once: boolean;
 };
 
-export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY, DYN_VOCAL_ON_CONNECT, DYN_VOCAL_ON_DISCONNECT];
+export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY, CLEANUP, DYN_VOCAL_ON_CONNECT, DYN_VOCAL_ON_DISCONNECT];

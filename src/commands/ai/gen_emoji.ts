@@ -1,8 +1,10 @@
 import type { Command } from '@commands';
+import { DURATION_TMP_EMOJI } from '@constants';
+import { Duration } from '@utils/duration';
 import { SlashCommandBuilder } from 'discord.js';
 import { read as jimp_read } from 'jimp';
 
-import { EventReader, randomString } from './hugging_face.ts';
+import { EventReader } from './hugging_face.ts';
 
 /*
  * @command     - gen_emoji
@@ -45,11 +47,13 @@ export const GEN_EMOJI: Command = {
         }
         const jimp_image = await jimp_read(image.attachment);
         const b64image = await jimp_image.quality(90).getBufferAsync('image/jpeg');
+        const now = Date.now();
         const options = {
-            name: `tmp_${randomString(10)}`,
+            name: `tmp_${now}`,
             attachment: `data:image/jpeg;base64,${b64image.toString('base64')}`,
         };
         const new_emoji = await guild.emojis.create(options);
+        setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI);
         await interaction.editReply({
             content: new_emoji.toString(),
         });
