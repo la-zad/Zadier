@@ -1,7 +1,8 @@
 import type { BotEvent } from '@events';
 
 /*
- * @event       - Ready
+ * @event       - Ready shoutout
+ * @listenTo:   - ready
  * @description - Emitted when the client becomes ready to start working.
  * @permission  - None
  */

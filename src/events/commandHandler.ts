@@ -3,6 +3,7 @@ import type { BotEvent } from '@events';
 
 /*
  * @event       - Command Handler
+ * @listenTo:   - interactionCreate
  * @description - Emitted when a command is called.
  * @permission  - None
  */

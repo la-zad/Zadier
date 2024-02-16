@@ -4,6 +4,7 @@ The comment must respect the following format:
 ```js
 /*
  * @event       - The command name
+ * @listenTo    - What the event triiger listens to
  * @description - Quick description of the command
  * @permission  - Affected roles
  */
