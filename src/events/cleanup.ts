@@ -7,9 +7,9 @@ import type { BotEvent } from '@events';
  * @permission  - None
  */
 export const CLEANUP: BotEvent = {
-    name: 'ready',
+    name: 'Clean up temporary emojis',
+    listenTo: 'ready',
     async execute(client) {
-        console.log("fdp");
         // Gestion de la suppression des emojis temporaires
         const guilds = await client.guilds.fetch();
         for await (const oauth2guild of guilds.values()) {
@@ -19,11 +19,11 @@ export const CLEANUP: BotEvent = {
             for await (const emoji of emojis.values()) {
                 console.log(`Cleanup emoji ${emoji.name}`);
                 if (!emoji.name?.startsWith('tmp_')) {
-                    return;
+                    continue;
                 }
                 const timestamp = /tmp_(\d+)/.exec(emoji.name)?.[1];
                 if (!timestamp) {
-                    return;
+                    continue;
                 }
                 const diff = Math.max(0, DURATION_TMP_EMOJI - (Date.now() - Number(timestamp)));
                 setTimeout(() => void emoji.delete(), diff);
