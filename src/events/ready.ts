@@ -6,7 +6,8 @@ import type { BotEvent } from '@events';
  * @permission  - None
  */
 export const READY: BotEvent = {
-    name: 'ready',
+    name: 'Ready shoutout',
+    listenTo: 'ready',
     execute(client) {
         console.log(`Logged in as ${client.user.tag}!`);
     },

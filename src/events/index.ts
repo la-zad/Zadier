@@ -10,7 +10,8 @@ export type BotEvent = {
 }[keyof ClientEvents];
 
 export type SpecificBotEvent<K extends keyof ClientEvents> = {
-    name: K;
+    name: string;
+    listenTo: K;
     execute: (...args: ClientEvents[K]) => Awaitable<void>;
     once: boolean;
 };
