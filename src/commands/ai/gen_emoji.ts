@@ -1,7 +1,7 @@
 import type { Command } from '@commands';
 import { DURATION_TMP_EMOJI } from '@constants';
 import { SlashCommandBuilder } from 'discord.js';
-import { read as jimp_read } from 'jimp';
+import Jimp from 'jimp';
 
 import { EventReader } from './hugging_face.ts';
 
@@ -44,7 +44,7 @@ export const GEN_EMOJI: Command = {
         if (!image) {
             return replyError("l'image n'a pas pu être générée.");
         }
-        const jimp_image = await jimp_read(image.attachment);
+        const jimp_image = await Jimp.read(image.attachment);
         const b64image = await jimp_image.quality(90).getBufferAsync('image/jpeg');
         const now = Date.now();
         const options = {
