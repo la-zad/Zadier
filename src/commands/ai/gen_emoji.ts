@@ -13,7 +13,7 @@ import { EventReader } from './hugging_face.ts';
 export const GEN_EMOJI: Command = {
     data: new SlashCommandBuilder()
         .setName('gen_emoji')
-        .setDescription('Génère des emojis avec SDLXL Turbo! (temporaire, 1 journée)')
+        .setDescription(`Génère des emojis avec SDLXL Turbo! (temporaire, ${DURATION_TMP_EMOJI.toString()})`)
         .addStringOption((option) => option.setName('prompt').setDescription('Le prompt').setRequired(true))
         .addNumberOption((option) =>
             option.setName('seed').setDescription('La graine (aléatoire par défaut)').setRequired(false),
