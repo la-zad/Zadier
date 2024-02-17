@@ -52,7 +52,7 @@ export const GEN_EMOJI: Command = {
             attachment: `data:image/jpeg;base64,${b64image.toString('base64')}`,
         };
         const new_emoji = await guild.emojis.create(options);
-        setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI);
+        setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI.milliseconds);
         await interaction.editReply({
             content: new_emoji.toString(),
         });
