@@ -12,21 +12,21 @@ export class Duration {
     public static days = (nb: number): Duration => new Duration(days(nb));
 
     public get seconds(): number {
-        return (this.milliseconds / 1000) % 60;
+        return this.milliseconds / 1000;
     }
     public set seconds(nb: number) {
         this.milliseconds = seconds(nb);
     }
 
     public get minutes(): number {
-        return (this.seconds / 60) % 60;
+        return this.seconds / 60;
     }
     public set minutes(nb: number) {
         this.milliseconds = minutes(nb);
     }
 
     public get hours(): number {
-        return (this.minutes / 60) % 24;
+        return this.minutes / 60;
     }
     public set hours(nb: number) {
         this.milliseconds = hours(nb);
@@ -40,6 +40,11 @@ export class Duration {
     }
 
     public toString(): string {
-        return `${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`;
+        const d = Math.floor(this.days);
+        const h = Math.floor(this.hours % 24);
+        const m = Math.floor(this.minutes % 60);
+        const s = Math.floor(this.seconds % 60);
+        const ms = this.milliseconds % 1000;
+        return `${d}d ${h}h ${m}m ${s}s ${ms}ms`;
     }
 }
