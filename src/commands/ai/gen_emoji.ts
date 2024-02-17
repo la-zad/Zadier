@@ -1,6 +1,5 @@
 import type { Command } from '@commands';
 import { DURATION_TMP_EMOJI } from '@constants';
-import { Duration } from '@utils/duration';
 import { SlashCommandBuilder } from 'discord.js';
 import { read as jimp_read } from 'jimp';
 
