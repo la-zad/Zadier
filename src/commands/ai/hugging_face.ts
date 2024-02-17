@@ -97,7 +97,6 @@ async function getRoot(): Promise<Option<string>> {
     if (!reg?.[1]) {
         return null;
     }
-    console.log('ROOT: ', reg[1]);
     return reg[1];
 }
 
