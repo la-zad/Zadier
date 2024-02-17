@@ -3,6 +3,14 @@ import { SlashCommandBuilder } from 'discord.js';
 
 import { EventReader } from './hugging_face.ts';
 
+const DEFAULT_VALUE = {
+    strength: 0.7,
+    steps: 2,
+    get seed(): number {
+        return Math.floor(Math.random() * 12013012031030);
+    },
+};
+
 /*
  * @command     - sdxl_turbo
  * @description - Génère des images avec SDLXL Turbo!
@@ -30,9 +38,9 @@ export const SDXL_TURBO: Command = {
 
         // Discord slash command parameters
         const prompt = interaction.options.get('prompt')?.value as string;
-        const seed = (interaction.options.get('seed')?.value as number) || Math.floor(Math.random() * 12013012031030);
-        const strength = (interaction.options.get('strength')?.value as number) || 0.7;
-        const steps = (interaction.options.get('steps')?.value as number) || 2;
+        const seed = (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed;
+        const strength = (interaction.options.get('strength')?.value as number) ?? DEFAULT_VALUE.strength;
+        const steps = (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps;
         if (!prompt) {
             return replyError('No prompt provided');
         }
