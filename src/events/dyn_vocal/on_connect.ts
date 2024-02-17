@@ -21,10 +21,11 @@ export const DYN_VOCAL_ON_CONNECT: BotEvent = {
         if (!member) return;
         const chan = await guild.channels.create({
             type: ChannelType.GuildVoice,
-            name: `${newVoiceState.member?.nickname ?? 'un mec'} qui parle`,
-            position: channel.position + 1,
+            name: `${member.nickname ?? member.user.username} qui parle`,
+            parent: channel.parent,
+            position: channel.position,
         });
         await member.voice.setChannel(chan);
     },
-    once: true,
+    once: false,
 };
