@@ -45,6 +45,14 @@ export class Duration {
         const m = Math.floor(this.minutes % 60);
         const s = Math.floor(this.seconds % 60);
         const ms = this.milliseconds % 1000;
-        return `${d}d ${h}h ${m}m ${s}s ${ms}ms`;
+        let str = '';
+        const plural = (nb: number): string => (nb > 1 ? 's' : '');
+        if (d > 0) str += `${d} jour${plural(d)} `;
+        if (h > 0) str += `${h} heure${plural(h)} `;
+        if (m > 0) str += `${m} minute${plural(m)} `;
+        if (s > 0) str += `${s} seconde${plural(s)} `;
+        if (ms > 0) str += `${ms}ms`;
+        if (str === '') str = '0ms';
+        return str.trimEnd();
     }
 }
