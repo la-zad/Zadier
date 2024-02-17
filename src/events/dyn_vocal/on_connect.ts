@@ -3,8 +3,8 @@ import { ChannelType } from 'discord.js';
 
 /*
  * @event       - Dynamic vocal channel - on connect
- * @listenTo:   - channelUpdate
- * @description - Emitted when the client becomes ready to start working.
+ * @listenTo:   - voiceStateUpdate
+ * @description - When a member connects to a voice channel factory, create a temporary and move the member to it
  * @permission  - None
  */
 export const DYN_VOCAL_ON_CONNECT: BotEvent = {
@@ -14,9 +14,7 @@ export const DYN_VOCAL_ON_CONNECT: BotEvent = {
         if (newVoiceState.channelId === null || newVoiceState.guild == null) return;
         const guild = newVoiceState.guild;
         const channel = newVoiceState.channel;
-        if (!channel || channel.permissionsFor(newVoiceState.guild.id)?.has('SendMessages')) {
-            return;
-        }
+        if (!channel || channel.permissionsFor(newVoiceState.guild.id)?.has('SendMessages')) return;
         const member = newVoiceState.member;
         if (!member) return;
         const chan = await guild.channels.create({

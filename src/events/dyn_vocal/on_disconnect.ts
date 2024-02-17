@@ -1,10 +1,10 @@
 import type { BotEvent } from '@events';
 
 /*
- * @event       - Dynamic vocal channel - on connect
- * @listenTo:   - channelUpdate
- * @description - Emitted when the client becomes ready to start working.
- * @permission  - None
+ * @event       - Dynamic vocal channel - on disconnect
+ * @listenTo:   - voiceStateUpdate
+ * @description - When a member disconnects from a temporary voice channel, delete it
+ * @permission  - idk
  */
 export const DYN_VOCAL_ON_DISCONNECT: BotEvent = {
     name: 'Dynamic vocal channel - on disconnect',
