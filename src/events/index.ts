@@ -1,6 +1,8 @@
 import type { ClientEvents } from 'discord.js';
 
 import { COMMAND_HANDLER } from './commandHandler';
+import { DYN_VOCAL_ON_CONNECT } from './dyn_vocal/on_connect';
+import { DYN_VOCAL_ON_DISCONNECT } from './dyn_vocal/on_disconnect';
 import { READY } from './ready';
 
 // shitty type cause generics don't allow
@@ -16,4 +18,4 @@ export type SpecificBotEvent<K extends keyof ClientEvents> = {
     once: boolean;
 };
 
-export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY];
+export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY, DYN_VOCAL_ON_CONNECT, DYN_VOCAL_ON_DISCONNECT];
