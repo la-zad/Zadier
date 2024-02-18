@@ -12,7 +12,7 @@ export const DYN_VOCAL_ON_DISCONNECT: BotEvent = {
     async execute(oldStateChannel, _) {
         if (oldStateChannel.channelId === null || oldStateChannel.guild == null) return;
         const channel = oldStateChannel.channel;
-        if (!channel || !channel.permissionsFor(oldStateChannel.guild.id)?.has('SendMessages')) return;
+        if (!channel || !channel.name.startsWith('Nouveau')) return;
         if (channel.members.size === 0) {
             await channel.delete();
         }
