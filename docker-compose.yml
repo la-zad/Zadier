@@ -1,9 +1,12 @@
 version: '3.8'
 
 services:
-    hopbot:
-        image: hopbot
-        build: .
+    db:
+        image: postgres:16.1-alpine
+        restart: always
         environment:
-            - TOKEN=dQw4w9WgXcQ
-            - CLIENT_ID=177013
+            - POSTGRES_USER=zadier
+            - POSTGRES_PASSWORD=dQw4w9WgXcQ
+            - POSTGRES_DB=zadier
+        volumes:
+            - ./db:/var/lib/postgresql/data

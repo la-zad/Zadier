@@ -3,11 +3,13 @@ import type { BotEvent } from '@events';
 
 /*
  * @event       - Command Handler
+ * @listenTo:   - interactionCreate
  * @description - Emitted when a command is called.
  * @permission  - None
  */
 export const COMMAND_HANDLER: BotEvent = {
-    name: 'interactionCreate',
+    name: 'Command Handler',
+    listenTo: 'interactionCreate',
     async execute(interaction) {
         if (!Bot.isBot(interaction.client)) return console.error('Client is not a Bot. WTF?');
         if (!interaction.isCommand()) return console.log('Not a command.');

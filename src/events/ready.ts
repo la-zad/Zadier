@@ -1,12 +1,14 @@
 import type { BotEvent } from '@events';
 
 /*
- * @event       - Ready
+ * @event       - Ready shoutout
+ * @listenTo:   - ready
  * @description - Emitted when the client becomes ready to start working.
  * @permission  - None
  */
 export const READY: BotEvent = {
-    name: 'ready',
+    name: 'Ready shoutout',
+    listenTo: 'ready',
     execute(client) {
         console.log(`Logged in as ${client.user.tag}!`);
     },

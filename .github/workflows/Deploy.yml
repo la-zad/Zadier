@@ -1,10 +1,10 @@
 name: Deploy
 
 on:
-    # push:
-    #     branches:
-    #         - main
-    #         - develop
+    push:
+        branches:
+            - main
+            - develop
     workflow_dispatch:
 
 jobs:
@@ -16,27 +16,27 @@ jobs:
             - name: Ensure env is correct
               run: |
                   # these are all public infos, no need to hide them
-                  if [ "${{ secrets.REMOTE_USER }}" != "hopbot" ]; then
-                    echo "REMOTE_USER is not 'hopbot', aborting"
+                  if [ "${{ secrets.REMOTE_USER }}" != "zadier" ]; then
+                    echo "REMOTE_USER is not 'zadier', aborting"
                     exit 1
                   fi
-                  if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "687640485984206871" ]; then
-                    echo "SERVER_ID is not '687640485984206871', aborting"
+                  if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "1204549439818309632" ]; then
+                    echo "SERVER_ID is not '1204549439818309632', aborting"
                     exit 1
                   fi
-                  if [ "${{ github.ref_name }}" == "develop" ] && [ "${{ secrets.SERVER_ID }}" != "1186800402197393499" ]; then
-                    echo "SERVER_ID is not '1186800402197393499', aborting"
+                  if [ "${{ github.ref_name }}" == "develop" ] && [ "${{ secrets.SERVER_ID }}" != "1206349415082622986" ]; then
+                    echo "SERVER_ID is not '1206349415082622986', aborting"
                     exit 1
                   fi
             - name: checkout
               uses: actions/checkout@v4
             - name: build Docker image
               run: |
-                  docker build -t hopbot:${{ github.ref_name }} .
+                  docker build -t zadier:${{ github.ref_name }} .
             - name: Save Docker image as tar file
               run: |
                   mkdir -p ./out
-                  docker save hopbot:${{ github.ref_name }} -o ./out/hopbot.tar
+                  docker save zadier:${{ github.ref_name }} -o ./out/zadier.tar
             - name: Save the current date
               id: date
               run: |
@@ -48,24 +48,39 @@ jobs:
                   REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
                   REMOTE_USER: ${{ secrets.REMOTE_USER }}
                   REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-                  SOURCE: out/hopbot.tar
-                  TARGET: '/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar'
+                  SOURCE: out/zadier.tar
+                  TARGET: /home/zadier/${{ github.ref_name }}/zadier-${{ steps.date.outputs.DATE }}.tar
                   SCRIPT_BEFORE: |
-                      mkdir -p "/home/hopbot/${{ github.ref_name }}"
+                      # ensure requirements are met
+                      mkdir -p "/home/zadier/${{ github.ref_name }}"
+                      loginctl enable-linger "zadier"
                       # clean up old containers and images
-                      podman stop hopbot-${{ github.ref_name }} || true
-                      podman rm hopbot-${{ github.ref_name }} || true
-                      podman rmi hopbot:${{ github.ref_name }} || true
+                      podman stop "zadier-${{ github.ref_name }}"
+                      podman rm "zadier-${{ github.ref_name }}"
+                      podman rmi "zadier:${{ github.ref_name }}"
+                      systemctl --user stop "container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user disable "container-zadier-${{ github.ref_name }}.service"
+                      rm "$HOME/.config/systemd/user/container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user daemon-reload
                   SCRIPT_AFTER: |
                       # load the new image
-                      podman load -i "/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar"
-                      podman run \
-                        --detach \
-                        --network podman \
-                        --name hopbot-${{ github.ref_name }} \
-                        --env TZ="Europe/Paris" \
-                        --env TOKEN=${{ secrets.TOKEN }} \
-                        --env SERVER_ID=${{ secrets.SERVER_ID }} \
-                        --env CLIENT_ID=${{ secrets.CLIENT_ID }} \
-                        hopbot:${{ github.ref_name }}
+                      podman load -i "/home/zadier/${{ github.ref_name }}/zadier-${{ steps.date.outputs.DATE }}.tar"
+                      podman create \
+                        --network host \
+                        --tz=Europe/Paris \
+                        --name "zadier-${{ github.ref_name }}" \
+                        --env "TOKEN=${{ secrets.TOKEN }}" \
+                        --env "SERVER_ID=${{ secrets.SERVER_ID }}" \
+                        --env "CLIENT_ID=${{ secrets.CLIENT_ID }}" \
+                        "zadier:${{ github.ref_name }}"
+                      # create the service file
+                      mkdir -p "/home/zadier/.config/systemd/user"
+                      podman generate systemd \
+                          --new \
+                          --name "zadier-${{ github.ref_name }}" \
+                          --restart-policy "on-failure" \
+                          > "/home/zadier/.config/systemd/user/container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user enable "container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user daemon-reload
+                      systemctl --user start "container-zadier-${{ github.ref_name }}.service"
                       echo "Deployed successfully"

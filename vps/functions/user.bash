@@ -15,7 +15,7 @@ create_user() {
         echo "No username provided."
         exit 1
     fi
-    mkdir "$GENERATED_FOLDER/$1"
+    mkdir -p "$GENERATED_FOLDER/$1"
 
     PASSWD=$(generate_password 32)
     useradd -m -p "$PASSWD" "$1"
@@ -29,6 +29,4 @@ create_user() {
     cat "$GENERATED_FOLDER/$1/github.pub" >> "$USR_HOME/.ssh/authorized_keys"
     chmod -R 600 "$USR_HOME/.ssh/authorized_keys"
     chown "$1:$1" "$USR_HOME/.ssh/authorized_keys"
-    ## Podman
-    runuser -u "$1" -- podman network create "$1"
 }

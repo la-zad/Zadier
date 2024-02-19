@@ -1,6 +1,6 @@
-# hopbot
+# Zadier
 
-HopBot is a Discord bot created for the discord server of Le Coin Des Developpeurs. The goal of this bot is to manage the server and to provide some useful tools for the members.
+Zadier is a Discord bot created for the discord server of Le Coin Des Developpeurs. The goal of this bot is to manage the server and to provide some useful tools for the members.
 
 ## Usage
 
@@ -12,7 +12,7 @@ HopBot is a Discord bot created for the discord server of Le Coin Des Developpeu
 
 ```bash
 # Clone the repository
-git clone git@github.com:lecoindesdevs/HopBot.git
+git clone git@github.com:la-zad/Zadier.git
 
 # Install dependencies
 bun install

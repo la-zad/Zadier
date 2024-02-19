@@ -10,9 +10,10 @@ export type BotEvent = {
 }[keyof ClientEvents];
 
 export type SpecificBotEvent<K extends keyof ClientEvents> = {
-    name: K;
+    name: string;
+    listenTo: K;
     execute: (...args: ClientEvents[K]) => Awaitable<void>;
     once: boolean;
 };
 
-export const EVENTS = [COMMAND_HANDLER, READY];
+export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY];
