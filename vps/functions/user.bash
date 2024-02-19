@@ -15,7 +15,7 @@ create_user() {
         echo "No username provided."
         exit 1
     fi
-    mkdir "$GENERATED_FOLDER/$1"
+    mkdir -p "$GENERATED_FOLDER/$1"
 
     PASSWD=$(generate_password 32)
     useradd -m -p "$PASSWD" "$1"
