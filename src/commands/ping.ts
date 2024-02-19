@@ -1,7 +1,7 @@
 import type { Command } from '@commands';
 import { SlashCommandBuilder } from 'discord.js';
 
-/*
+/**
  * @command     - ping
  * @description - Replies with Pong!
  * @permission  - None

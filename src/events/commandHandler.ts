@@ -1,11 +1,10 @@
 import { Bot } from '@bot';
 import type { BotEvent } from '@events';
 
-/*
+/**
  * @event       - Command Handler
- * @listenTo:   - interactionCreate
+ * @listenTo    - interactionCreate
  * @description - Emitted when a command is called.
- * @permission  - None
  */
 export const COMMAND_HANDLER: BotEvent = {
     name: 'Command Handler',

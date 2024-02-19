@@ -1,10 +1,9 @@
 import type { BotEvent } from '@events';
 
-/*
+/**
  * @event       - Ready shoutout
- * @listenTo:   - ready
+ * @listenTo    - ready
  * @description - Emitted when the client becomes ready to start working.
- * @permission  - None
  */
 export const READY: BotEvent = {
     name: 'Ready shoutout',
