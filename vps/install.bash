@@ -42,7 +42,7 @@ install_packages podman htop firewalld rsync
 echo "Minimal packages installed."
 ############################### Additionnal Users #############################
 echo "Creating additional users..."
-create_user "hopbot"
+create_user "zadier"
 ################################## SSH Setup ##################################
 echo "Configuring SSH..."
 ## Generate SSH key

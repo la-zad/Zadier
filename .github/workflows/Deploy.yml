@@ -16,8 +16,8 @@ jobs:
             - name: Ensure env is correct
               run: |
                   # these are all public infos, no need to hide them
-                  if [ "${{ secrets.REMOTE_USER }}" != "hopbot" ]; then
-                    echo "REMOTE_USER is not 'hopbot', aborting"
+                  if [ "${{ secrets.REMOTE_USER }}" != "zadier" ]; then
+                    echo "REMOTE_USER is not 'zadier', aborting"
                     exit 1
                   fi
                   if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "687640485984206871" ]; then
@@ -32,11 +32,11 @@ jobs:
               uses: actions/checkout@v4
             - name: build Docker image
               run: |
-                  docker build -t hopbot:${{ github.ref_name }} .
+                  docker build -t zadier:${{ github.ref_name }} .
             - name: Save Docker image as tar file
               run: |
                   mkdir -p ./out
-                  docker save hopbot:${{ github.ref_name }} -o ./out/hopbot.tar
+                  docker save zadier:${{ github.ref_name }} -o ./out/zadier.tar
             - name: Save the current date
               id: date
               run: |
@@ -48,39 +48,39 @@ jobs:
                   REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
                   REMOTE_USER: ${{ secrets.REMOTE_USER }}
                   REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-                  SOURCE: out/hopbot.tar
-                  TARGET: /home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar
+                  SOURCE: out/zadier.tar
+                  TARGET: /home/zadier/${{ github.ref_name }}/zadier-${{ steps.date.outputs.DATE }}.tar
                   SCRIPT_BEFORE: |
                       # ensure requirements are met
-                      mkdir -p "/home/hopbot/${{ github.ref_name }}"
-                      loginctl enable-linger "hopbot"
+                      mkdir -p "/home/zadier/${{ github.ref_name }}"
+                      loginctl enable-linger "zadier"
                       # clean up old containers and images
-                      podman stop "hopbot-${{ github.ref_name }}"
-                      podman rm "hopbot-${{ github.ref_name }}"
-                      podman rmi "hopbot:${{ github.ref_name }}"
-                      systemctl --user stop "container-hopbot-${{ github.ref_name }}.service"
-                      systemctl --user disable "container-hopbot-${{ github.ref_name }}.service"
-                      rm "$HOME/.config/systemd/user/container-hopbot-${{ github.ref_name }}.service"
+                      podman stop "zadier-${{ github.ref_name }}"
+                      podman rm "zadier-${{ github.ref_name }}"
+                      podman rmi "zadier:${{ github.ref_name }}"
+                      systemctl --user stop "container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user disable "container-zadier-${{ github.ref_name }}.service"
+                      rm "$HOME/.config/systemd/user/container-zadier-${{ github.ref_name }}.service"
                       systemctl --user daemon-reload
                   SCRIPT_AFTER: |
                       # load the new image
-                      podman load -i "/home/hopbot/${{ github.ref_name }}/hopbot-${{ steps.date.outputs.DATE }}.tar"
+                      podman load -i "/home/zadier/${{ github.ref_name }}/zadier-${{ steps.date.outputs.DATE }}.tar"
                       podman create \
                         --network podman \
-                        --name "hopbot-${{ github.ref_name }}" \
+                        --name "zadier-${{ github.ref_name }}" \
                         --env TZ="Europe/Paris" \
                         --env "TOKEN=${{ secrets.TOKEN }}" \
                         --env "SERVER_ID=${{ secrets.SERVER_ID }}" \
                         --env "CLIENT_ID=${{ secrets.CLIENT_ID }}" \
-                        "hopbot:${{ github.ref_name }}"
+                        "zadier:${{ github.ref_name }}"
                       # create the service file
-                      mkdir -p "/home/hopbot/.config/systemd/user"
+                      mkdir -p "/home/zadier/.config/systemd/user"
                       podman generate systemd \
                           --new \
-                          --name "hopbot-${{ github.ref_name }}" \
+                          --name "zadier-${{ github.ref_name }}" \
                           --restart-policy "on-failure" \
-                          > "/home/hopbot/.config/systemd/user/container-hopbot-${{ github.ref_name }}.service"
-                      systemctl --user enable "container-hopbot-${{ github.ref_name }}.service"
+                          > "/home/zadier/.config/systemd/user/container-zadier-${{ github.ref_name }}.service"
+                      systemctl --user enable "container-zadier-${{ github.ref_name }}.service"
                       systemctl --user daemon-reload
-                      systemctl --user start "container-hopbot-${{ github.ref_name }}.service"
+                      systemctl --user start "container-zadier-${{ github.ref_name }}.service"
                       echo "Deployed successfully"

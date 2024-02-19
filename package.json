@@ -1,5 +1,5 @@
 {
-  "name": "hopbot",
+  "name": "zadier",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
