@@ -11,6 +11,8 @@ GENERATED_FOLDER="$PWD/generated"
 . "$PWD/functions/user.bash"
 # shellcheck source=./vps/functions/packages.bash
 . "$PWD/functions/packages.bash"
+# shellcheck source=./vps/functions/create_database.bash
+. "$PWD/functions/create_database.bash"
 
 sudo_required
 
@@ -27,12 +29,13 @@ echo "
 
 ################################# Environment #################################
 echo "Loading environment variables from .env file..."
-# ###### Needed environment variables ######
-# ## 1. ...                               ##
-# ##########################################
+# ######### Needed environment variables #########
+# ## TODO: PROJECTS: list of projects to deploy ##
+# ################################################
 # # Load environment variables
 # # if .env file is not present, exit on failure
 source_env "$PWD/.env" || exit_on_error "Failed to load environment variables."
+# Check if all required environment variables are set
 echo "Environment variables loaded."
 ################################ Update System ################################
 echo "Updating system..."
@@ -40,6 +43,9 @@ echo "Installing Epel repository..."
 install_packages epel-release
 install_packages podman htop firewalld rsync
 echo "Minimal packages installed."
+######################## Install and configure database #######################
+# TODO: make this run as alma
+create_database
 ############################### Additionnal Users #############################
 echo "Creating additional users..."
 create_user "zadier"
