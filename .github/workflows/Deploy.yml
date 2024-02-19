@@ -1,10 +1,10 @@
 name: Deploy
 
 on:
-    # push:
-    #     branches:
-    #         - main
-    #         - develop
+    push:
+        branches:
+            - main
+            - develop
     workflow_dispatch:
 
 jobs:
@@ -20,12 +20,12 @@ jobs:
                     echo "REMOTE_USER is not 'zadier', aborting"
                     exit 1
                   fi
-                  if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "687640485984206871" ]; then
-                    echo "SERVER_ID is not '687640485984206871', aborting"
+                  if [ "${{ github.ref_name }}" == "main" ] && [ "${{ secrets.SERVER_ID }}" != "1204549439818309632" ]; then
+                    echo "SERVER_ID is not '1204549439818309632', aborting"
                     exit 1
                   fi
-                  if [ "${{ github.ref_name }}" == "develop" ] && [ "${{ secrets.SERVER_ID }}" != "1186800402197393499" ]; then
-                    echo "SERVER_ID is not '1186800402197393499', aborting"
+                  if [ "${{ github.ref_name }}" == "develop" ] && [ "${{ secrets.SERVER_ID }}" != "1206349415082622986" ]; then
+                    echo "SERVER_ID is not '1206349415082622986', aborting"
                     exit 1
                   fi
             - name: checkout
@@ -66,9 +66,9 @@ jobs:
                       # load the new image
                       podman load -i "/home/zadier/${{ github.ref_name }}/zadier-${{ steps.date.outputs.DATE }}.tar"
                       podman create \
-                        --network podman \
+                        --network host \
+                        --tz=Europe/Paris \
                         --name "zadier-${{ github.ref_name }}" \
-                        --env TZ="Europe/Paris" \
                         --env "TOKEN=${{ secrets.TOKEN }}" \
                         --env "SERVER_ID=${{ secrets.SERVER_ID }}" \
                         --env "CLIENT_ID=${{ secrets.CLIENT_ID }}" \
