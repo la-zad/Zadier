@@ -3,6 +3,16 @@ import { SlashCommandBuilder } from 'discord.js';
 
 import { replicate } from './replicate';
 
+const DEFAULT_MIXTRAL_VALUES = {
+    max_new_tokens: 1024,
+    temperature: 0.6,
+    top_p: 0.9,
+    top_k: 50,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    prompt_template: '<s>[INST] {prompt} [/INST] ',
+};
+
 export const MIXTRAL: Command = {
     data: new SlashCommandBuilder()
         .setName('mixtral')
@@ -65,13 +75,19 @@ export const MIXTRAL: Command = {
 
         const input = {
             prompt: interaction.options.get('prompt')?.value as string,
-            max_new_tokens: (interaction.options.get('max_new_tokens')?.value as number) || 1024,
-            temperature: (interaction.options.get('temperature')?.value as number) || 0.6,
-            top_p: (interaction.options.get('top_p')?.value as number) || 0.9,
-            top_k: (interaction.options.get('top_k')?.value as number) || 50,
-            presence_penalty: (interaction.options.get('presence_penalty')?.value as number) || 0,
-            frequency_penalty: (interaction.options.get('frequency_penalty')?.value as number) || 0,
-            prompt_template: '<s>[INST] {prompt} [/INST] ',
+            max_new_tokens:
+                (interaction.options.get('max_new_tokens')?.value as number) ?? DEFAULT_MIXTRAL_VALUES.max_new_tokens,
+            temperature:
+                (interaction.options.get('temperature')?.value as number) ?? DEFAULT_MIXTRAL_VALUES.temperature,
+            top_p: (interaction.options.get('top_p')?.value as number) ?? DEFAULT_MIXTRAL_VALUES.top_p,
+            top_k: (interaction.options.get('top_k')?.value as number) ?? DEFAULT_MIXTRAL_VALUES.top_k,
+            presence_penalty:
+                (interaction.options.get('presence_penalty')?.value as number) ??
+                DEFAULT_MIXTRAL_VALUES.presence_penalty,
+            frequency_penalty:
+                (interaction.options.get('frequency_penalty')?.value as number) ??
+                DEFAULT_MIXTRAL_VALUES.frequency_penalty,
+            prompt_template: DEFAULT_MIXTRAL_VALUES.prompt_template,
         };
         let msg = '';
         let last_time = Date.now();
