@@ -1,17 +1,7 @@
 import type { Command } from '@commands';
 import { SlashCommandBuilder } from 'discord.js';
 
-import { EventReader } from './hugging_face.ts';
-
-const MAX_SEED_API = 12013012031030;
-
-const DEFAULT_VALUE = {
-    strength: 0.7,
-    steps: 2,
-    get seed(): number {
-        return Math.floor(Math.random() * MAX_SEED_API);
-    },
-};
+import { DEFAULT_VALUE, EventReader } from './hugging_face.ts';
 
 /*
  * @command     - sdxl_turbo
