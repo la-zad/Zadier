@@ -1,21 +1,12 @@
 import type { Command } from '@commands';
 import { SlashCommandBuilder } from 'discord.js';
 
-import { replicate } from './replicate';
+import { DEFAULT_MIXTRAL_VALUES, execute as mixtral_execute } from './mixtral_api';
+import { check_authentication } from './replicate';
 
-const DEFAULT_MIXTRAL_VALUES = {
-    max_new_tokens: 1024,
-    temperature: 0.6,
-    top_p: 0.9,
-    top_k: 50,
-    presence_penalty: 0,
-    frequency_penalty: 0,
-    prompt_template: '<s>[INST] {prompt} [/INST] ',
-};
-
-export const MIXTRAL: Command = {
+export const ASK_MIXTRAL: Command = {
     data: new SlashCommandBuilder()
-        .setName('mixtral')
+        .setName('ask_mixtral')
         .setDescription('Génère du texte avec Mixtral 8x7b!')
         .addStringOption((option) => option.setName('prompt').setDescription('Le prompt').setRequired(true))
         .addNumberOption((option) =>
@@ -69,7 +60,7 @@ export const MIXTRAL: Command = {
     async execute(interaction) {
         await interaction.deferReply();
 
-        if (!replicate.auth) {
+        if (!check_authentication()) {
             throw "Le token de replicate n'a pas été défini!";
         }
 
@@ -89,17 +80,6 @@ export const MIXTRAL: Command = {
                 DEFAULT_MIXTRAL_VALUES.frequency_penalty,
             prompt_template: DEFAULT_MIXTRAL_VALUES.prompt_template,
         };
-        let msg = '';
-        let last_time = Date.now();
-        for await (const event of replicate.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
-            if (event.event === 'output') {
-                msg += event.data;
-            }
-            if (Date.now() - last_time > 500 && msg !== '') {
-                await interaction.editReply(msg);
-                last_time = Date.now();
-            }
-        }
-        await interaction.editReply(msg);
+        await mixtral_execute(interaction, input);
     },
 };
