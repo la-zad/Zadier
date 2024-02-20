@@ -7,6 +7,7 @@ import type { BotEvent } from '@events';
  * @permission  - None
  */
 export const CLEANUP_EMOJIS: BotEvent = {
+    once: true,
     name: 'Clean up temporary emojis',
     listenTo: 'ready',
     async execute(client) {
@@ -24,5 +25,4 @@ export const CLEANUP_EMOJIS: BotEvent = {
             }
         }
     },
-    once: true,
 };
