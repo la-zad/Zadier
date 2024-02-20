@@ -19,7 +19,7 @@ export const CLEANUP_EMOJIS: BotEvent = {
                 if (!timestamp) {
                     continue;
                 }
-                const diff = Math.max(0, DURATION_TMP_EMOJI - (Date.now() - Number(timestamp)));
+                const diff = Math.max(0, DURATION_TMP_EMOJI.milliseconds - (Date.now() - Number(timestamp)));
                 setTimeout(() => void emoji.delete(), diff);
             }
         }
