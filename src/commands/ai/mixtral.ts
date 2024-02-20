@@ -58,12 +58,9 @@ export const MIXTRAL: Command = {
         ),
     async execute(interaction) {
         await interaction.deferReply();
-        const replyError = async (msgError: string): Promise<void> => {
-            await interaction.editReply(msgError);
-        };
 
         if (!replicate.auth) {
-            return replyError("Le token de replicate n'a pas été défini!");
+            throw "Le token de replicate n'a pas été défini!";
         }
 
         const input = {
