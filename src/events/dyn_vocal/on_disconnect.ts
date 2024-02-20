@@ -7,6 +7,7 @@ import type { BotEvent } from '@events';
  * @permission  - None
  */
 export const DYN_VOCAL_ON_DISCONNECT: BotEvent = {
+    once: false,
     name: 'Dynamic vocal channel - on disconnect',
     listenTo: 'voiceStateUpdate',
     async execute({ channel }, _) {
@@ -14,5 +15,4 @@ export const DYN_VOCAL_ON_DISCONNECT: BotEvent = {
 
         await channel.delete();
     },
-    once: false,
 };

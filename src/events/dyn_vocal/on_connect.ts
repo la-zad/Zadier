@@ -8,6 +8,7 @@ import { ChannelType } from 'discord.js';
  * @permission  - None
  */
 export const DYN_VOCAL_ON_CONNECT: BotEvent = {
+    once: false,
     name: 'Dynamic vocal channel - on connect',
     listenTo: 'voiceStateUpdate',
     async execute(_, { channel, guild, member }) {
@@ -22,5 +23,4 @@ export const DYN_VOCAL_ON_CONNECT: BotEvent = {
 
         await member.voice.setChannel(chan);
     },
-    once: false,
 };
