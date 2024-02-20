@@ -21,10 +21,15 @@ export const COMMAND_HANDLER: BotEvent = {
             await command.execute(interaction);
         } catch (error) {
             console.error(error);
-            await interaction.reply({
+            const reply = {
                 content: 'There was an error while executing this command!',
                 ephemeral: true,
-            });
+            };
+            if (interaction.replied) {
+                await interaction.reply(reply);
+            } else {
+                await interaction.editReply(reply);
+            }
         }
     },
     once: false,
