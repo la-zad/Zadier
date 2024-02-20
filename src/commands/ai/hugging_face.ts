@@ -1,5 +1,7 @@
 const BASE_URL = 'https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space';
 
+let ROOT: Option<string> = await getRoot();
+
 interface EventEstimation {
     msg: 'estimation';
     rank: number;
@@ -99,8 +101,6 @@ async function getRoot(): Promise<Option<string>> {
     }
     return reg[1];
 }
-
-let ROOT: Option<string> = await getRoot();
 
 async function getFileFromRoot(path: string, force: boolean = true): Promise<Option<ArrayBuffer>> {
     if (!ROOT) {
