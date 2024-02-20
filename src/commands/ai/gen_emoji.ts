@@ -3,7 +3,7 @@ import { DURATION_TMP_EMOJI } from '@constants';
 import { SlashCommandBuilder } from 'discord.js';
 import Jimp from 'jimp';
 
-import { EventReader } from './hugging_face.ts';
+import { DEFAULT_VALUE, EventReader } from './hugging_face.ts';
 
 /*
  * @command     - gen_emoji
@@ -27,20 +27,20 @@ export const GEN_EMOJI: Command = {
         };
         const guild = interaction.guild;
         if (!guild) {
-            return replyError('La commande doit être utilisée dans un serveur.');
+            throw 'La commande doit être utilisée dans un serveur.';
         }
         const image = await EventReader.generateImage(hf_options);
         if (!image) {
-            return replyError("l'image n'a pas pu être générée.");
+            throw "l'image n'a pas pu être générée.";
         }
         const jimp_image = await Jimp.read(image.attachment);
         const b64image = await jimp_image.quality(90).getBufferAsync('image/jpeg');
         const now = Date.now();
-        const options = {
+        const emoji_options = {
             name: `tmp_${now}`,
             attachment: `data:image/jpeg;base64,${b64image.toString('base64')}`,
         };
-        const new_emoji = await guild.emojis.create(options);
+        const new_emoji = await guild.emojis.create(emoji_options);
         setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI.milliseconds);
         await interaction.editReply({
             content: new_emoji.toString(),

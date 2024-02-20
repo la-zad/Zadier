@@ -24,9 +24,6 @@ export const SDXL_TURBO: Command = {
         ),
     async execute(interaction) {
         await interaction.deferReply();
-        const replyError = async (msgError: string): Promise<void> => {
-            await interaction.editReply(msgError);
-        };
         const options = {
             prompt: interaction.options.get('prompt', true).value as string,
             seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
@@ -34,12 +31,12 @@ export const SDXL_TURBO: Command = {
             steps: (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps,
         };
         if (!options.prompt) {
-            return replyError('No prompt provided');
+            throw 'No prompt provided';
         }
 
         const image = await EventReader.generateImage(options);
         if (!image) {
-            return replyError('Un problème est survenu...');
+            throw 'Un problème est survenu...';
         }
         const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
 
