@@ -186,8 +186,9 @@ export class EventReader {
     }
     private async processEvent(evt: Event): Promise<boolean> {
         switch (evt.msg) {
-            // case "estimation":
-            //     break;
+            case 'estimation':
+            case 'process_starts':
+                break;
             case 'send_data':
                 if (
                     !(await send_data(evt.event_id, this.data.session_hash, [
@@ -201,8 +202,6 @@ export class EventReader {
                     return false;
                 }
                 break;
-            // case "process_starts":
-            //     break;
             case 'process_completed':
                 if (evt.success) {
                     const data = evt.output?.data[0];
