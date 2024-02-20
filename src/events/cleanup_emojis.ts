@@ -10,7 +10,6 @@ export const CLEANUP_EMOJIS: BotEvent = {
     name: 'Clean up temporary emojis',
     listenTo: 'ready',
     async execute(client) {
-        // Gestion de la suppression des emojis temporaires
         const guilds = await client.guilds.fetch();
         for await (const oauth2guild of guilds.values()) {
             const guild = await oauth2guild.fetch();

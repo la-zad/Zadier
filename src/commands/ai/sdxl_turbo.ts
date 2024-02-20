@@ -37,8 +37,6 @@ export const SDXL_TURBO: Command = {
         const replyError = async (msgError: string): Promise<void> => {
             await interaction.editReply(msgError);
         };
-
-        // Discord slash command parameters
         const options = {
             prompt: interaction.options.get('prompt', true).value as string,
             seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
