@@ -54,8 +54,10 @@ export const SDXL_TURBO: Command = {
         if (!image) {
             return replyError('Un problème est survenu...');
         }
+        const msg = `> ${prompt}\nGraine : ${seed}`;
+
         await interaction.editReply({
-            content: interaction.options.get('seed') === null ? `Graine: ${seed}` : null,
+            content: msg,
             files: [image],
         });
     },
