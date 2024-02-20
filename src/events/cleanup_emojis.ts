@@ -15,10 +15,7 @@ export const CLEANUP_EMOJIS: BotEvent = {
             const guild = await oauth2guild.fetch();
             const emojis = await guild.emojis.fetch();
             for await (const emoji of emojis.values()) {
-                if (!emoji.name?.startsWith('tmp_')) {
-                    continue;
-                }
-                const timestamp = /tmp_(\d+)/.exec(emoji.name)?.[1];
+                const timestamp = emoji.name && /tmp_(\d+)/.exec(emoji.name)?.[1];
                 if (!timestamp) {
                     continue;
                 }
