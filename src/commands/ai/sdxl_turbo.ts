@@ -39,24 +39,21 @@ export const SDXL_TURBO: Command = {
         };
 
         // Discord slash command parameters
-        const prompt = interaction.options.get('prompt')?.value as string;
-        const seed = (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed;
-        const strength = (interaction.options.get('strength')?.value as number) ?? DEFAULT_VALUE.strength;
-        const steps = (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps;
-        if (!prompt) {
+        const options = {
+            prompt: interaction.options.get('prompt', true).value as string,
+            seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
+            strength: (interaction.options.get('strength')?.value as number) ?? DEFAULT_VALUE.strength,
+            steps: (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps,
+        };
+        if (!options.prompt) {
             return replyError('No prompt provided');
         }
 
-        const image = await EventReader.generateImage({
-            prompt,
-            strength,
-            steps,
-            seed,
-        });
+        const image = await EventReader.generateImage(options);
         if (!image) {
             return replyError('Un problème est survenu...');
         }
-        const msg = `> ${prompt}\nGraine : ${seed}`;
+        const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
 
         await interaction.editReply({
             content: msg,
