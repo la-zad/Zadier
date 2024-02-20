@@ -1,9 +1,9 @@
 import type { BotEvent } from '@events';
 import { ChannelType } from 'discord.js';
 
-/*
+/**
  * @event       - Dynamic vocal channel - on connect
- * @listenTo:   - voiceStateUpdate
+ * @listenTo    - voiceStateUpdate
  * @description - When a member connects to a voice channel factory, create a temporary and move the member to it
  * @permission  - None
  */
