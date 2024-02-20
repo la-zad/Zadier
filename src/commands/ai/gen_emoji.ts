@@ -23,7 +23,7 @@ export const GEN_EMOJI: Command = {
         const hf_options = {
             ...DEFAULT_VALUE,
             prompt: interaction.options.get('prompt', true).value as string,
-            seed: (interaction.options.get('seed')?.value as number) ?? Math.floor(Math.random() * 12013012031030),
+            seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
         };
         const guild = interaction.guild;
         if (!guild) {
