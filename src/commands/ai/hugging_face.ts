@@ -104,7 +104,7 @@ let ROOT: Option<string> = await getRoot();
 
 async function getFileFromRoot(path: string, force: boolean = true): Promise<Option<ArrayBuffer>> {
     if (!ROOT) {
-        await getRoot();
+        ROOT = await getRoot();
         if (!ROOT) {
             return null;
         }
