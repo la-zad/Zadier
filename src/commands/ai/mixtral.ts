@@ -3,19 +3,6 @@ import { SlashCommandBuilder } from 'discord.js';
 
 import { replicate } from './replicate';
 
-/*
-const input = {
-    prompt: "Write a bedtime story about neural networks I can read to my toddler",
-    max_new_tokens: 1024,
-    temperature: 0.6,
-    top_p: 0.9,
-    top_k: 50,
-    presence_penalty: 0,
-    frequency_penalty: 0
-    prompt_template: "<s>[INST] {prompt} [/INST] ",
-};
-*/
-
 export const MIXTRAL: Command = {
     data: new SlashCommandBuilder()
         .setName('mixtral')
