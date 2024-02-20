@@ -25,10 +25,10 @@ export const COMMAND_HANDLER: BotEvent = {
                 content: 'There was an error while executing this command!',
                 ephemeral: true,
             };
-            if (interaction.replied) {
-                await interaction.reply(reply);
-            } else {
+            if (interaction.replied || interaction.deferred) {
                 await interaction.editReply(reply);
+            } else {
+                await interaction.reply(reply);
             }
         }
     },
