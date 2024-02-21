@@ -197,7 +197,7 @@ export class EventReader {
                     this.data.input.steps,
                     this.data.input.seed,
                 ]);
-                return !is_sent;
+                return is_sent;
             }
             case 'process_completed': {
                 if (!evt.success) return false;
