@@ -189,19 +189,16 @@ export class EventReader {
             case 'estimation':
             case 'process_starts':
                 break;
-            case 'send_data':
-                if (
-                    !(await send_data(evt.event_id, this.data.session_hash, [
-                        null,
-                        this.data.input.prompt,
-                        this.data.input.strength,
-                        this.data.input.steps,
-                        this.data.input.seed,
-                    ]))
-                ) {
-                    return false;
-                }
-                break;
+            case 'send_data': {
+                const is_sent = await send_data(evt.event_id, this.data.session_hash, [
+                    null,
+                    this.data.input.prompt,
+                    this.data.input.strength,
+                    this.data.input.steps,
+                    this.data.input.seed,
+                ]);
+                return !is_sent;
+            }
             case 'process_completed':
                 if (evt.success) {
                     const data = evt.output?.data[0];
