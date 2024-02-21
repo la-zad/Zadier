@@ -72,6 +72,7 @@ jobs:
                         --env "TOKEN=${{ secrets.TOKEN }}" \
                         --env "SERVER_ID=${{ secrets.SERVER_ID }}" \
                         --env "CLIENT_ID=${{ secrets.CLIENT_ID }}" \
+                        --env "REPLICATE_TOKEN=${{ secrets.REPLICATE_TOKEN }}" \
                         "zadier:${{ github.ref_name }}"
                       # create the service file
                       mkdir -p "/home/zadier/.config/systemd/user"
