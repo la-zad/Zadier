@@ -164,7 +164,8 @@ export class EventReader {
                 if (!evt) {
                     continue;
                 }
-                if (!(await this.processEvent(evt))) {
+                const ok = await this.processEvent(evt);
+                if (!ok) {
                     return;
                 }
             }
@@ -209,22 +210,24 @@ export class EventReader {
                 ]);
                 return !is_sent;
             }
-            case 'process_completed':
-                if (evt.success) {
-                    const data = evt.output?.data[0];
-                    if (!data) {
-                        return false;
-                    }
-                    const res = await getFileFromRoot(data.path);
-                    if (!res) {
-                        return false;
-                    }
-                    this.img = {
-                        name: data.orig_name,
-                        attachment: Buffer.from(res),
-                    };
+            case 'process_completed': {
+                if (!evt.success) {
+                    return false;
                 }
+                const data = evt.output?.data[0];
+                if (!data) {
+                    return false;
+                }
+                const res = await getFileFromRoot(data.path);
+                if (!res) {
+                    return false;
+                }
+                this.img = {
+                    name: data.orig_name,
+                    attachment: Buffer.from(res),
+                };
                 break;
+            }
         }
         return true;
     }
