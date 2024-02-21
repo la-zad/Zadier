@@ -1,10 +1,10 @@
 import type { Command } from '@commands';
 import { DURATION_TMP_EMOJI } from '@constants';
+import { sleep } from 'bun';
 import { SlashCommandBuilder } from 'discord.js';
 import Jimp from 'jimp';
 
 import { DEFAULT_VALUE, EventReader } from './hugging_face.ts';
-import { sleep } from 'bun';
 
 function shrink_image(image: Jimp): Jimp {
     if (image.getWidth() > 256 && image.getHeight() > 256) {
