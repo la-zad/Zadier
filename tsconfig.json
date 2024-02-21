@@ -5,7 +5,9 @@
             "@bot": ["./src/bot"],
             "@commands": ["./src/commands"],
             "@env": ["./src/env"],
-            "@events": ["./src/events"]
+            "@constants": ["./src/constants"],
+            "@events": ["./src/events"],
+            "@utils/*": ["./src/utils/*"]
         }
     },
     "include": ["src", ".eslintrc.cjs"]
