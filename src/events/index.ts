@@ -19,4 +19,10 @@ export type SpecificBotEvent<K extends keyof ClientEvents> = {
     once: boolean;
 };
 
-export const EVENTS: Array<BotEvent> = [COMMAND_HANDLER, READY, CLEANUP_EMOJIS, DYN_VOCAL_ON_CONNECT, DYN_VOCAL_ON_DISCONNECT];
+export const EVENTS: Array<BotEvent> = [
+    COMMAND_HANDLER,
+    READY,
+    CLEANUP_EMOJIS,
+    DYN_VOCAL_ON_CONNECT,
+    DYN_VOCAL_ON_DISCONNECT,
+];
