@@ -14,6 +14,9 @@ export const PING: Command = {
             case luck < 0.01:
                 await interaction.reply('Shit I missed, well done!');
                 break;
+            case luck < 0.1:
+                await interaction.reply('https://tenor.com/view/cat-ping-pong-funny-animals-cats-gif-8766860');
+                break;
             case luck < 0.2:
                 await interaction.reply('紅龍スマッシュ!');
                 break;
