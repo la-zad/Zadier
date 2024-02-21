@@ -1,6 +1,6 @@
 import type { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
-import { GEN_EMOJI } from './ai/gen_emoji';
+import { GEN_EMOJI } from './ai/make_emoji';
 import { SDXL_TURBO } from './ai/sdxl_turbo';
 import { PING } from './ping';
 
