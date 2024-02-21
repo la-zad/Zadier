@@ -1,66 +1,7 @@
-const BASE_URL = 'https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space';
+import { BASE_URL } from '.';
+import type { Attachment, Event, Input, InputData } from './types';
 
 let ROOT: Option<string> = await getRoot();
-
-export const MAX_SEED_API = 12013012031030;
-
-export const DEFAULT_VALUE = {
-    strength: 0.7,
-    steps: 2,
-    get seed(): number {
-        return Math.floor(Math.random() * MAX_SEED_API);
-    },
-};
-
-interface EventEstimation {
-    msg: 'estimation';
-    rank: number;
-    queue_size: number;
-    avg_event_process_time: number;
-    avg_event_concurrent_process_time: number;
-    rank_eta: number;
-    queue_eta: number;
-}
-interface EventSendData {
-    msg: 'send_data';
-    event_id: string;
-}
-interface EventProcessStart {
-    msg: 'process_starts';
-}
-interface EventProcessCompleted {
-    msg: 'process_completed';
-    output?: Output;
-    success: boolean;
-}
-
-type Event = EventEstimation | EventSendData | EventProcessStart | EventProcessCompleted;
-
-export interface Input {
-    prompt: string;
-    strength: number;
-    steps: number;
-    seed: number;
-}
-interface InputData {
-    session_hash: string;
-    input: Input;
-}
-
-interface Output {
-    data: OutputData[];
-    is_generating: boolean;
-    duration: number;
-    average_duration: number;
-}
-
-interface OutputData {
-    path: string;
-    url: string | null;
-    size: number | null;
-    orig_name: string;
-    mime_type: string | null;
-}
 
 async function send_data<T>(event_id: string, session_hash: string, data: T): Promise<boolean> {
     const res = await fetch(`${BASE_URL}/queue/data`, {
@@ -78,11 +19,6 @@ async function send_data<T>(event_id: string, session_hash: string, data: T): Pr
         },
     });
     return res.status == 200;
-}
-
-export interface Attachment {
-    name: string;
-    attachment: Buffer;
 }
 
 export function randomString(

@@ -1,7 +1,6 @@
 import type { Command } from '@commands';
+import { DEFAULT_VALUE, EventReader } from '@utils/hugging_face';
 import { SlashCommandBuilder } from 'discord.js';
-
-import { DEFAULT_VALUE, EventReader } from './hugging_face.ts';
 
 /*
  * @command     - sdxl_turbo
