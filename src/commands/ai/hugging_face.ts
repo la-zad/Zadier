@@ -2,6 +2,16 @@ const BASE_URL = 'https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space';
 
 let ROOT: Option<string> = await getRoot();
 
+export const MAX_SEED_API = 12013012031030;
+
+export const DEFAULT_VALUE = {
+    strength: 0.7,
+    steps: 2,
+    get seed(): number {
+        return Math.floor(Math.random() * MAX_SEED_API);
+    },
+};
+
 interface EventEstimation {
     msg: 'estimation';
     rank: number;
@@ -219,13 +229,3 @@ export class EventReader {
         return true;
     }
 }
-
-export const MAX_SEED_API = 12013012031030;
-
-export const DEFAULT_VALUE = {
-    strength: 0.7,
-    steps: 2,
-    get seed(): number {
-        return Math.floor(Math.random() * MAX_SEED_API);
-    },
-};
