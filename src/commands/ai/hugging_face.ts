@@ -97,18 +97,14 @@ export function randomString(
 }
 
 async function getRoot(): Promise<Option<string>> {
-    const res = await fetch(`${BASE_URL}/?__theme=light`, {
-        method: 'GET',
-    });
-    if (res.status != 200) {
-        return null;
-    }
+    const res = await fetch(`${BASE_URL}/?__theme=light`, { method: 'GET' });
+    if (res.status != 200) return null;
+
     const html = await res.text();
 
     const reg = new RegExp(`(${BASE_URL.replace('/', '\\/')}\\/--replicas\\/\\w+)`).exec(html);
-    if (!reg?.[1]) {
-        return null;
-    }
+    if (!reg?.[1]) return null;
+
     return reg[1];
 }
 
@@ -123,17 +119,16 @@ async function getFileFromRoot(path: string, force: boolean = true): Promise<Opt
     if (res.status == 404 && !force) {
         ROOT = null;
         return getFileFromRoot(path, false);
-    } else if (res.status != 200) {
-        return null;
     }
+    if (res.status != 200) return null;
+
     return res.arrayBuffer();
 }
 
 function intoEvent(value_string: string): Event | null {
     const reg = /data: (.*)/.exec(value_string);
-    if (!reg?.[1]) {
-        return null;
-    }
+    if (!reg?.[1]) return null;
+
     const data = reg[1];
     const parsed = JSON.parse(data) as Event;
     return parsed;
@@ -152,22 +147,17 @@ export class EventReader {
     public async process(): Promise<void> {
         for (;;) {
             const evt = await this.reader.read();
-            if (evt.done) {
-                return;
-            }
+            if (evt.done) return;
+
             const value_string = new TextDecoder('utf-8').decode(evt.value);
             for (const line of value_string.split('\n')) {
-                if (line === '') {
-                    continue;
-                }
+                if (line === '') continue;
+
                 const evt = intoEvent(line);
-                if (!evt) {
-                    continue;
-                }
+                if (!evt) continue;
+
                 const ok = await this.processEvent(evt);
-                if (!ok) {
-                    return;
-                }
+                if (!ok) return;
             }
         }
     }
@@ -181,9 +171,8 @@ export class EventReader {
             },
             method: 'GET',
         });
-        if (!response.body) {
-            return null;
-        }
+        if (!response.body) return null;
+
         const reader = response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
         const event_reader = new EventReader(reader, {
@@ -211,17 +200,14 @@ export class EventReader {
                 return !is_sent;
             }
             case 'process_completed': {
-                if (!evt.success) {
-                    return false;
-                }
+                if (!evt.success) return false;
+
                 const data = evt.output?.data[0];
-                if (!data) {
-                    return false;
-                }
+                if (!data) return false;
+
                 const res = await getFileFromRoot(data.path);
-                if (!res) {
-                    return false;
-                }
+                if (!res) return false;
+
                 this.img = {
                     name: data.orig_name,
                     attachment: Buffer.from(res),

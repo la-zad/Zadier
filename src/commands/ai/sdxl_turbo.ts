@@ -30,14 +30,10 @@ export const SDXL_TURBO: Command = {
             strength: (interaction.options.get('strength')?.value as number) ?? DEFAULT_VALUE.strength,
             steps: (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps,
         };
-        if (!options.prompt) {
-            throw 'No prompt provided';
-        }
 
         const image = await EventReader.generateImage(options);
-        if (!image) {
-            throw 'Un problème est survenu...';
-        }
+        if (!image) throw 'Un problème est survenu...';
+
         const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
 
         await interaction.editReply({
