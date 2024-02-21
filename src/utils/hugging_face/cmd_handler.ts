@@ -1,6 +1,6 @@
-import { BASE_URL } from '.';
 import type { Attachment, Event, Input, InputData } from './types';
 
+const BASE_URL = 'https://diffusers-unofficial-sdxl-turbo-i2i-t2i.hf.space';
 let ROOT: Option<string> = await getRoot();
 
 async function send_data<T>(event_id: string, session_hash: string, data: T): Promise<boolean> {
