@@ -100,7 +100,6 @@ export class Bot extends Client {
      */
     private setUpEvents(): void {
         for (const event of EVENTS) {
-            console.log(`Setting up event: ${event.name}`);
             // else TSserver will complain about the type of event.execute
             // saying its too weak to calculate the type EvenHandler
             // so we have to cast it to the correct type

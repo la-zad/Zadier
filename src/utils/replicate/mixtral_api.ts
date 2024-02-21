@@ -1,6 +1,6 @@
 import type { CacheType, CommandInteraction } from 'discord.js';
 
-import { replicate } from './replicate';
+import { replicate } from '.';
 
 export interface InputType {
     prompt: string;

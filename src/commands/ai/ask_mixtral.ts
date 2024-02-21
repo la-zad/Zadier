@@ -1,8 +1,7 @@
 import type { Command } from '@commands';
+import { check_authentication } from '@utils/replicate';
+import { DEFAULT_MIXTRAL_VALUES, execute as mixtral_execute } from '@utils/replicate/mixtral_api';
 import { SlashCommandBuilder } from 'discord.js';
-
-import { DEFAULT_MIXTRAL_VALUES, execute as mixtral_execute } from './mixtral_api';
-import { check_authentication } from './replicate';
 
 export const ASK_MIXTRAL: Command = {
     data: new SlashCommandBuilder()
