@@ -1,6 +1,6 @@
 import type { CacheType, CommandInteraction } from 'discord.js';
 
-import { replicate } from '.';
+import { REPLICATE } from '.';
 
 export interface InputType {
     prompt: string;
@@ -26,7 +26,7 @@ export const DEFAULT_MIXTRAL_VALUES = {
 export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
     let msg = '';
     let last_time = Date.now();
-    for await (const event of replicate.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
+    for await (const event of REPLICATE.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
         if (event.event === 'output') {
             msg += event.data;
         }
