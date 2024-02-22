@@ -31,7 +31,7 @@ function shrink_message(message: string): [string, string] {
     do {
         lastPoint = message.slice(0, lastPoint).search(/\.[^.]*$/g);
     } while (lastPoint > MAX_MESSAGE_LENGTH);
-    if (lastPoint == -1) return [message, ''];
+    if (lastPoint == -1) return [message.slice(0, MAX_MESSAGE_LENGTH), message.slice(MAX_MESSAGE_LENGTH)];
 
     return [message.slice(0, lastPoint + 1), message.slice(lastPoint + 1)];
 }
