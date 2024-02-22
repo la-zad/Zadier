@@ -1,7 +1,6 @@
 import type { Command } from '@commands';
 import { DURATION_TMP_EMOJI } from '@constants';
 import { DEFAULT_VALUE, EventReader } from '@utils/hugging_face';
-import { sleep } from 'bun';
 import { SlashCommandBuilder } from 'discord.js';
 import Jimp from 'jimp';
 
@@ -65,7 +64,6 @@ export const GEN_EMOJI: Command = {
         };
         const new_emoji = await guild.emojis.create(emoji_options);
         setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI.milliseconds);
-        await sleep(1000);
         await interaction.editReply({
             content: new_emoji.toString(),
         });
