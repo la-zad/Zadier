@@ -1,6 +1,8 @@
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType, CommandInteraction, Message } from 'discord.js';
 
 import { REPLICATE } from '.';
+
+const MAX_MESSAGE_LENGTH = 2000;
 
 export interface InputType {
     prompt: string;
@@ -23,15 +25,44 @@ export const DEFAULT_MIXTRAL_VALUES = {
     prompt_template: '<s>[INST] {prompt} [/INST] ',
 };
 
+function shrink_message(message: string): [string, string] {
+    let lastPoint = message.length;
+    do {
+        lastPoint = message.slice(0, lastPoint).search(/\.[^.]*$/g);
+    } while (lastPoint > MAX_MESSAGE_LENGTH);
+    if (lastPoint == -1) return [message, ''];
+
+    return [message.slice(0, lastPoint + 1), message.slice(lastPoint + 1)];
+}
+
+function isCommandInteraction(value: unknown): value is CommandInteraction {
+    return (value as CommandInteraction).editReply !== undefined;
+}
+
 export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
     let msg = '';
     let last_time = Date.now();
+    let sender: CommandInteraction | Message = interaction;
+    const send = async (text: string): Promise<void> => {
+        if (isCommandInteraction(sender)) {
+            await sender.editReply(text);
+        } else {
+            await sender.edit(text);
+        }
+    };
     for await (const event of REPLICATE.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
         if (event.event === 'output') {
             msg += event.data;
         }
+        while (msg.length > MAX_MESSAGE_LENGTH) {
+            const [message, shrink] = shrink_message(msg);
+            await send(message);
+            msg = shrink;
+            sender = await (isCommandInteraction(sender) ? sender.followUp(message) : sender.reply(message));
+            last_time = Date.now();
+        }
         if (Date.now() - last_time > 500 && msg !== '') {
-            await interaction.editReply(msg);
+            await send(msg);
             last_time = Date.now();
         }
     }
