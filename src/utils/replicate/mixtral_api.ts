@@ -17,7 +17,7 @@ export interface InputType {
 }
 
 export const DEFAULT_MIXTRAL_VALUES = {
-    max_new_tokens: 1024,
+    max_new_tokens: 512,
     temperature: 0.6,
     top_p: 0.9,
     top_k: 50,
