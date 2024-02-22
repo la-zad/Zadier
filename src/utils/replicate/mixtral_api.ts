@@ -1,3 +1,4 @@
+import { shrink_text } from '@utils/text';
 import type { CacheType, CommandInteraction, Message } from 'discord.js';
 
 import { REPLICATE } from '.';
@@ -27,18 +28,6 @@ export interface InputType {
     prompt_template: string;
 }
 
-
-
-function shrink_message(message: string): [string, string] {
-    let lastPoint = message.length;
-    do {
-        lastPoint = message.slice(0, lastPoint).search(/\.[^.]*$/g);
-    } while (lastPoint > MAX_MESSAGE_LENGTH);
-    if (lastPoint == -1) return [message.slice(0, MAX_MESSAGE_LENGTH), message.slice(MAX_MESSAGE_LENGTH)];
-
-    return [message.slice(0, lastPoint + 1), message.slice(lastPoint + 1)];
-}
-
 function isCommandInteraction(value: unknown): value is CommandInteraction {
     return (value as CommandInteraction).editReply !== undefined;
 }
@@ -59,7 +48,7 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             msg += event.data;
         }
         while (msg.length > MAX_MESSAGE_LENGTH) {
-            const [message, shrink] = shrink_message(msg);
+            const [message, shrink] = shrink_text(msg, MAX_MESSAGE_LENGTH, /\.[^.]*$/g);
             await send(message);
             msg = shrink;
             //prevent sending empty message
