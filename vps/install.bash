@@ -81,7 +81,7 @@ sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd
 ############################# Additionnal Settings ############################
 echo "Configuring additional settings..."
 ## Hostname
-hostnamectl set-hostname "CDD-VPS"
+hostnamectl set-hostname "ZAD-VPS"
 ## Ask for password when invoking sudo
 echo "Configuring sudo..."
 rm -f /etc/sudoers.d/90-cloud-init-users
