@@ -8,7 +8,7 @@ import type {
 } from 'discord.js';
 
 export function isRole(arg: CacheTypeReducer<CacheType, Role, APIRole>): arg is Role {
-    return is<Role, APIRole>(arg, 'members');
+    return is<Role, APIRole>(arg, 'guild');
 }
 
 export function isGuildMember(

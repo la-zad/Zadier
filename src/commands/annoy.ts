@@ -21,6 +21,7 @@ export const ANNOY: Command = {
         if (ping.member && isGuildMember(ping.member)) {
             await interaction.reply({ content: `${ping.member.toString()}`, ephemeral: true });
         } else if (ping.role && isRole(ping.role)) {
+            if (ping.role.name === '@everyone') throw 'Cannot ping everyone';
             await interaction.reply({ content: `${ping.role.toString()}`, ephemeral: true });
         } else {
             throw 'Unkown type of ping';
