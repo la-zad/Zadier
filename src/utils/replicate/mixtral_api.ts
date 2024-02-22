@@ -59,7 +59,9 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             const [message, shrink] = shrink_message(msg);
             await send(message);
             msg = shrink;
-            sender = await (isCommandInteraction(sender) ? sender.followUp(message) : sender.reply(message));
+            //prevent sending empty message
+            const shrink_send = shrink === '' ? '.' : shrink;
+            sender = await (isCommandInteraction(sender) ? sender.followUp(shrink_send) : sender.reply(shrink_send));
             last_time = Date.now();
         }
         if (Date.now() - last_time > 500 && msg !== '') {
