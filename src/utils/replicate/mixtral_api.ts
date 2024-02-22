@@ -2,6 +2,7 @@ import type { CacheType, CommandInteraction, Message } from 'discord.js';
 
 import { REPLICATE } from '.';
 
+const MODEL = 'mistralai/mixtral-8x7b-instruct-v0.1';
 const MAX_MESSAGE_LENGTH = 2000;
 
 export interface InputType {
@@ -50,7 +51,7 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             await sender.edit(text);
         }
     };
-    for await (const event of REPLICATE.stream('mistralai/mixtral-8x7b-instruct-v0.1', { input })) {
+    for await (const event of REPLICATE.stream(MODEL, { input })) {
         if (event.event === 'output') {
             msg += event.data;
         }
