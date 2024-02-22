@@ -19,5 +19,6 @@ COPY --from=BUILDER /builder/out/index.js .
 ARG TOKEN
 ARG CLIENT_ID
 ARG SERVER_ID
+ARG REPLICATE_TOKEN
 
 CMD ["bun", "index.js"]
