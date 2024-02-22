@@ -3,7 +3,18 @@ import type { CacheType, CommandInteraction, Message } from 'discord.js';
 import { REPLICATE } from '.';
 
 const MODEL = 'mistralai/mixtral-8x7b-instruct-v0.1';
+
 const MAX_MESSAGE_LENGTH = 2000;
+
+export const DEFAULT_MIXTRAL_VALUES = {
+    max_new_tokens: 512,
+    temperature: 0.6,
+    top_p: 0.9,
+    top_k: 50,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    prompt_template: '<s>[INST] {prompt} [/INST] ',
+};
 
 export interface InputType {
     prompt: string;
@@ -16,15 +27,7 @@ export interface InputType {
     prompt_template: string;
 }
 
-export const DEFAULT_MIXTRAL_VALUES = {
-    max_new_tokens: 512,
-    temperature: 0.6,
-    top_p: 0.9,
-    top_k: 50,
-    presence_penalty: 0,
-    frequency_penalty: 0,
-    prompt_template: '<s>[INST] {prompt} [/INST] ',
-};
+
 
 function shrink_message(message: string): [string, string] {
     let lastPoint = message.length;
