@@ -22,9 +22,6 @@ export function isGuildMember(
  */
 type PossibleDiscriminent<T, U> = keyof ExtractNonNull<ExtractNonOptionnal<ExtractProps<UniqueProps<T, U>>>>;
 
-function is<T, U>(
-    arg: CacheTypeReducer<CacheType, T, U> | undefined,
-    discriminent: PossibleDiscriminent<T, U>,
-): arg is T {
+function is<T, U>(arg: T | U | null | undefined, discriminent: PossibleDiscriminent<T, U>): arg is T {
     return Object.prototype.hasOwnProperty.call(arg, discriminent);
 }
