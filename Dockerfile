@@ -5,20 +5,20 @@ WORKDIR /builder
 COPY . .
 
 RUN bun install
-RUN bun run build
+RUN bun build ./src/index.ts --outdir ./out --target node
 
 #############################################
-FROM oven/bun:alpine
+FROM node:alpine
 
 USER nobody
 
 WORKDIR /app
 
-COPY --from=BUILDER /builder/out/index.js .
+COPY --from=BUILDER /builder/out/index.js ./index.mjs
 
 ARG TOKEN
 ARG CLIENT_ID
 ARG SERVER_ID
 ARG REPLICATE_TOKEN
 
-CMD ["bun", "index.js"]
+CMD ["node", "index.mjs"]
