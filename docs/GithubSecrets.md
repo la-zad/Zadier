@@ -23,3 +23,6 @@ You'll need to create the following secrets for each environment:
 | `TOKEN` | Discord bot's token |
 | `SERVER_ID` | Discord server's ID |
 | `CLIENT_ID` | Discord bot's client ID |
+| `REPLICATE_TOKEN` | Replicate API token |
+
+And update the Dockerfile `ARG` list.

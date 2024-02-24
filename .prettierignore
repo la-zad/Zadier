@@ -12,6 +12,7 @@ bun.lockb
 .prettierignore
 .gitignore
 .env.example
+.env
 bunfig.toml
 
 ## Docker

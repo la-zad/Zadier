@@ -1,8 +1,8 @@
-All commands must have a JSDoc comment above their object or `execute` function if it was moved.
+All commands must have a JSDoc comment above their object.
 The comment must respect the following format:
 
 ```js
-/*
+/**
  * @command     - The command name
  * @description - Quick description of the command
  * @permission  - The permission(s) required to use the command and/or roles required.
