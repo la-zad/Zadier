@@ -27,13 +27,13 @@ export const GEN_EMOJI: Command = {
         .addAttachmentOption((option) =>
             option.setName('image').setDescription('Image à mettre en emoji').setRequired(false),
         )
-        .addNumberOption((option) =>
-            option.setName('ai_seed').setDescription('La graine (aléatoire par défaut)').setRequired(false),
+        .addIntegerOption((option) =>
+            option.setName('seed').setDescription('La graine (aléatoire par défaut)').setRequired(false),
         ),
     async execute(interaction) {
         await interaction.deferReply();
 
-        const img_attach = interaction.options.get('image')?.attachment;
+        const img_attach = interaction.options.getAttachment('image');
         let image = null;
         const guild = interaction.guild;
         if (!guild) throw 'La commande doit être utilisée dans un serveur.';
@@ -46,8 +46,8 @@ export const GEN_EMOJI: Command = {
         } else {
             const hf_options = {
                 ...DEFAULT_VALUE,
-                prompt: interaction.options.get('ai_prompt', true).value as string,
-                seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
+                prompt: interaction.options.getString('ai_prompt', true),
+                seed: interaction.options.getInteger('seed') ?? DEFAULT_VALUE.seed,
             };
             const img_generated = await EventReader.generateImage(hf_options);
             if (!img_generated) throw "l'image n'a pas pu être générée.";

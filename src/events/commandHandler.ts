@@ -11,7 +11,7 @@ export const COMMAND_HANDLER: BotEvent = {
     listenTo: 'interactionCreate',
     async execute(interaction) {
         if (!Bot.isBot(interaction.client)) return console.error('Client is not a Bot. WTF?');
-        if (!interaction.isCommand()) return console.log('Not a command.');
+        if (!interaction.isChatInputCommand()) return console.log('Not a command.');
 
         const command = interaction.client.slashCommands.get(interaction.commandName);
 

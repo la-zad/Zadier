@@ -1,4 +1,4 @@
-import type { CommandInteraction, SlashCommandBuilder } from 'discord.js';
+import type { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 import { ASK_MIXTRAL } from './ai/ask_mixtral';
 import { GEN_EMOJI } from './ai/make_emoji';
@@ -10,7 +10,7 @@ type SlashCommandDescriptor = SlashCommandBuilder | Omit<SlashCommandBuilder, 'a
 
 export type Command = {
     data: SlashCommandDescriptor;
-    execute: (interaction: CommandInteraction) => Promise<void>;
+    execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
 };
 
 export const COMMANDS: Array<Command> = [PING, SDXL_TURBO, GEN_EMOJI, ANNOY, ASK_MIXTRAL];
