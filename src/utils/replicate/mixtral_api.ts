@@ -32,24 +32,25 @@ function isCommandInteraction(value: unknown): value is CommandInteraction {
     return (value as CommandInteraction).editReply !== undefined;
 }
 
+function send_msg(sender: CommandInteraction | Message, msg: string): Promise<Message> {
+    if (isCommandInteraction(sender)) {
+        return sender.editReply(msg);
+    } else {
+        return sender.reply(msg);
+    }
+}
+
 export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
     let msg = '';
     let last_time = Date.now();
     let sender: CommandInteraction | Message = interaction;
-    const send = async (text: string): Promise<void> => {
-        if (isCommandInteraction(sender)) {
-            await sender.editReply(text);
-        } else {
-            await sender.edit(text);
-        }
-    };
     for await (const event of REPLICATE.stream(MODEL, { input })) {
         if (event.event === 'output') {
             msg += event.data;
         }
         while (msg.length > MAX_MESSAGE_LENGTH) {
             const [message, shrink] = partition_text(msg, MAX_MESSAGE_LENGTH, PARTITIONING_PATTERNS.END_OF_SENTENCE);
-            await send(message);
+            await send_msg(sender, message);
             msg = shrink;
             //prevent sending empty message
             const shrink_send = shrink === '' ? '.' : shrink;
@@ -57,7 +58,7 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             last_time = Date.now();
         }
         if (Date.now() - last_time > 500 && msg !== '') {
-            await send(msg);
+            await send_msg(sender, msg);
             last_time = Date.now();
         }
     }
