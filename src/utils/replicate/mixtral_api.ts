@@ -44,13 +44,15 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
     let msg = '';
     let last_time = Date.now();
     let sender: CommandInteraction | Message = interaction;
+    let defer_await: Promise<Message<boolean>> | null = null;
     for await (const event of REPLICATE.stream(MODEL, { input })) {
         if (event.event === 'output') {
             msg += event.data;
         }
         while (msg.length > MAX_MESSAGE_LENGTH) {
             const [message, shrink] = partition_text(msg, MAX_MESSAGE_LENGTH, PARTITIONING_PATTERNS.END_OF_SENTENCE);
-            await send_msg(sender, message);
+            if (defer_await) await defer_await;
+            defer_await = send_msg(sender, message);
             msg = shrink;
             //prevent sending empty message
             const shrink_send = shrink === '' ? '.' : shrink;
@@ -58,7 +60,8 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             last_time = Date.now();
         }
         if (Date.now() - last_time > 500 && msg !== '') {
-            await send_msg(sender, msg);
+            if (defer_await) await defer_await;
+            defer_await = send_msg(sender, msg);
             last_time = Date.now();
         }
     }
