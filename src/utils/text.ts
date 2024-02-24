@@ -17,20 +17,21 @@ export const PARTITIONING_PATTERNS = {
  * @returns a tuple of the splited text
  */
 export function partition_text(text: string, max_length: number, pattern: RegExp): [string, string] {
-    const maxPartition = text.slice(0, max_length);
+    if (text.length <= max_length) return [text, ''];
+
     // Ensure the 'g' flag is set
     if (!pattern.global) {
         pattern = new RegExp(pattern.source, `g${pattern.ignoreCase ? 'i' : ''}${pattern.multiline ? 'm' : ''}`);
+    } else {
+        // reset pattern state
+        pattern.lastIndex = 0;
     }
 
-    let match, lastMatch;
-    while ((match = pattern.exec(maxPartition)) !== null) lastMatch = match;
+    let idx = max_length;
+    while (pattern.test(text) && pattern.lastIndex < max_length) idx = pattern.lastIndex;
 
-    if (!lastMatch) throw 'Uh Oh, what do we do?';
-
-    const splitIndex = lastMatch.index + lastMatch.length;
-    const partition = text.slice(0, splitIndex).trimEnd();
-    const rest = text.slice(splitIndex).trimStart();
+    const partition = text.slice(0, idx).trimEnd();
+    const rest = text.slice(idx).trimStart();
 
     return [partition, rest];
 }
