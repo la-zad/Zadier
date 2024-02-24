@@ -3,7 +3,7 @@ import {
     isGuildBasedChannelNotAPIGuildBasedChannel,
     isGuildMemberNotAPIGuildMember,
     isGuildTextBasedChannelNotGuildBasedChannel,
-} from '@utils/apiDiscriminent';
+} from '@utils/discord_type_guards';
 import { SlashCommandBuilder } from 'discord.js';
 
 /**
