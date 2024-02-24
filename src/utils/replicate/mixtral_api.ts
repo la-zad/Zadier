@@ -32,14 +32,8 @@ function isCommandInteraction(value: unknown): value is CommandInteraction {
     return (value as CommandInteraction).editReply !== undefined;
 }
 
-function send_msg(sender: CommandInteraction | Message, msg: string): Promise<Message> {
-    if (isCommandInteraction(sender)) {
-        return sender.editReply(msg);
-    } else {
-        return sender.reply(msg);
-    }
-}
 class Sender {
+    static TICK_MILLISECONDS = 500;
     private last_time = Date.now();
     private msg: string = '';
     private defer_await: Promise<Message<boolean>> | null = null;
@@ -48,37 +42,39 @@ class Sender {
         this.msg += text;
     }
     public async send_deferred(now = false): Promise<void> {
-        if (now || Date.now() - this.last_time > 500) {
-            if (this.msg !== '') {
-                if (this.defer_await) await this.defer_await;
-                this.defer_await = this.send_message();
-                await this.manage_overflow();
-            }
+        if (now || Date.now() - this.last_time > Sender.TICK_MILLISECONDS) {
             this.last_time = Date.now();
+            if (this.msg === '') return;
+
+            await this.send_message();
+
+            await this.manage_overflow();
         }
     }
-    private send_message(): Promise<Message<boolean>> {
+    private async send_message(): Promise<void> {
+        if (this.defer_await) await this.defer_await;
         if (isCommandInteraction(this.sender)) {
-            return this.sender.editReply(this.msg);
+            this.defer_await = this.sender.editReply(this.msg);
         } else {
-            return this.sender.reply(this.msg);
+            this.defer_await = this.sender.reply(this.msg);
         }
     }
     async manage_overflow(): Promise<void> {
         while (this.msg.length > MAX_MESSAGE_LENGTH) {
-            const [message, shrink] = partition_text(
+            const [message, shrunk] = partition_text(
                 this.msg,
                 MAX_MESSAGE_LENGTH,
                 PARTITIONING_PATTERNS.END_OF_SENTENCE,
             );
-            if (this.defer_await) await this.defer_await;
-            this.defer_await = send_msg(this.sender, message);
-            this.msg = shrink;
+            this.msg = message;
+            await this.send_message();
+            this.defer_await = null;
+            this.msg = shrunk;
             //prevent sending empty message
-            const shrink_send = shrink === '' ? '.' : shrink;
+            const shrunk_sendable = shrunk === '' ? '.' : shrunk;
             this.sender = await (isCommandInteraction(this.sender)
-                ? this.sender.followUp(shrink_send)
-                : this.sender.reply(shrink_send));
+                ? this.sender.followUp(shrunk_sendable)
+                : this.sender.reply(shrunk_sendable));
             this.last_time = Date.now();
         }
     }
