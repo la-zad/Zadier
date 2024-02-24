@@ -1,7 +1,7 @@
 import type { Command } from '@commands';
 import { SlashCommandBuilder } from 'discord.js';
 
-import { isGuildMember } from '../utils/apiDiscriminent';
+import { isGuildMemberNotAPIGuildMember } from '../utils/apiDiscriminent';
 
 /**
  * @command     - annoy
@@ -18,9 +18,8 @@ export const ANNOY: Command = {
     async execute(interaction) {
         const ping = interaction.options.get('ping', true);
 
-        if (!(ping.member && isGuildMember(ping.member))) throw 'Can only ping a user';
+        if (!isGuildMemberNotAPIGuildMember(ping.member)) throw 'Can only ping a user';
 
-        const reply = await interaction.reply({ content: `${ping.member.toString()}` });
-        return reply.delete();
+        return interaction.reply({ content: `${ping.member.toString()}` }).then((reply) => reply.delete());
     },
 };

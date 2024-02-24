@@ -1,18 +1,11 @@
-import type {
-    APIInteractionDataResolvedGuildMember,
-    APIRole,
-    CacheType,
-    CacheTypeReducer,
-    GuildMember,
-    Role,
-} from 'discord.js';
+import type { APIInteractionDataResolvedGuildMember, APIRole, GuildMember, Role } from 'discord.js';
 
-export function isRole(arg: CacheTypeReducer<CacheType, Role, APIRole>): arg is Role {
+export function isRoleNotAPIRole(arg?: Role | APIRole | null): arg is Role {
     return is<Role, APIRole>(arg, 'guild');
 }
 
-export function isGuildMember(
-    arg: CacheTypeReducer<CacheType, GuildMember, APIInteractionDataResolvedGuildMember>,
+export function isGuildMemberNotAPIGuildMember(
+    arg?: GuildMember | APIInteractionDataResolvedGuildMember | null,
 ): arg is GuildMember {
     return is<GuildMember, APIInteractionDataResolvedGuildMember>(arg, 'user');
 }
