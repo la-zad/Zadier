@@ -23,6 +23,7 @@ export const SDXL_TURBO: Command = {
         ),
     async execute(interaction) {
         await interaction.deferReply();
+
         const options = {
             prompt: interaction.options.getString('prompt', true),
             seed: interaction.options.getInteger('seed') ?? DEFAULT_VALUE.seed,

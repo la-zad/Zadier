@@ -37,10 +37,13 @@ class Sender {
     private last_time = Date.now();
     private msg: string = '';
     private defer_await: Promise<Message<boolean>> | null = null;
+
     constructor(public sender: CommandInteraction | Message) {}
+
     public append(text: string): void {
         this.msg += text;
     }
+
     public async send_deferred(now = false): Promise<void> {
         if (now || Date.now() - this.last_time > Sender.TICK_MILLISECONDS) {
             this.last_time = Date.now();
@@ -52,11 +55,13 @@ class Sender {
             await this.manage_overflow();
         }
     }
+
     private send_message(): void {
         this.defer_await = isCommandInteraction(this.sender)
             ? this.sender.editReply(this.msg)
             : this.sender.edit(this.msg);
     }
+
     async manage_overflow(): Promise<void> {
         while (this.msg.length > MAX_MESSAGE_LENGTH) {
             const [message, shrunk] = partition_text(

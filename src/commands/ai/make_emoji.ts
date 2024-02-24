@@ -33,8 +33,9 @@ export const GEN_EMOJI: Command = {
     async execute(interaction) {
         await interaction.deferReply();
 
-        const img_attach = interaction.options.getAttachment('image');
         let image = null;
+        const img_attach = interaction.options.getAttachment('image');
+
         const guild = interaction.guild;
         if (!guild) throw 'La commande doit être utilisée dans un serveur.';
 
@@ -55,6 +56,7 @@ export const GEN_EMOJI: Command = {
             image = img_generated.attachment;
         }
         if (!image) throw 'Un problème est survenu...';
+
         const jimp_image = await Jimp.read(image);
         const shrunk_image = shrink_image(jimp_image);
         const buffer_image = await shrunk_image.getBufferAsync('image/jpeg');
@@ -62,10 +64,10 @@ export const GEN_EMOJI: Command = {
             name: `tmp_${Date.now()}`,
             attachment: `data:image/jpeg;base64,${buffer_image.toString('base64')}`,
         };
+
         const new_emoji = await guild.emojis.create(emoji_options);
+
         setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI.milliseconds);
-        return interaction.editReply({
-            content: new_emoji.toString(),
-        });
+        return interaction.editReply(new_emoji.toString());
     },
 };

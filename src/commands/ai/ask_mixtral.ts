@@ -75,6 +75,7 @@ export const ASK_MIXTRAL: Command = {
                 interaction.options.getNumber('frequency_penalty') ?? DEFAULT_MIXTRAL_VALUES.frequency_penalty,
             prompt_template: DEFAULT_MIXTRAL_VALUES.prompt_template,
         };
+
         return mixtral_execute(interaction, input);
     },
 };
