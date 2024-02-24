@@ -1,4 +1,4 @@
-import { partition_text } from '@utils/text';
+import { partition_text, PARTITIONING_PATTERNS } from '@utils/text';
 import type { CacheType, CommandInteraction, Message } from 'discord.js';
 
 import { REPLICATE } from '.';
@@ -48,7 +48,7 @@ export async function execute(interaction: CommandInteraction<CacheType>, input:
             msg += event.data;
         }
         while (msg.length > MAX_MESSAGE_LENGTH) {
-            const [message, shrink] = partition_text(msg, MAX_MESSAGE_LENGTH, /\.[^.]*$/g);
+            const [message, shrink] = partition_text(msg, MAX_MESSAGE_LENGTH, PARTITIONING_PATTERNS.END_OF_SENTENCE);
             await send(message);
             msg = shrink;
             //prevent sending empty message

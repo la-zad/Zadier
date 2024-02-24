@@ -1,3 +1,11 @@
+export type PARTITIONING_PATTERNS = (typeof PARTITIONING_PATTERNS)[keyof typeof PARTITIONING_PATTERNS];
+export const PARTITIONING_PATTERNS = {
+    END_OF_SENTENCE: /[.!?](\s|\n|$)/g,
+    SPACE: / /g,
+    PUNCTUATION: /[.,;?!]+/g,
+    LINE_BREAK: /\n/g,
+} as const;
+
 /**
  * Partition a text to two parts.
  *
@@ -9,11 +17,20 @@
  * @returns a tuple of the splited text
  */
 export function partition_text(text: string, max_length: number, pattern: RegExp): [string, string] {
-    let lastPoint = text.length;
-    do {
-        lastPoint = text.slice(0, lastPoint).search(pattern);
-    } while (lastPoint > max_length);
-    if (lastPoint == -1) return [text.slice(0, max_length), text.slice(max_length)];
+    const maxPartition = text.slice(0, max_length);
+    // Ensure the 'g' flag is set
+    if (!pattern.global) {
+        pattern = new RegExp(pattern.source, `g${pattern.ignoreCase ? 'i' : ''}${pattern.multiline ? 'm' : ''}`);
+    }
 
-    return [text.slice(0, lastPoint + 1), text.slice(lastPoint + 1)];
+    let match, lastMatch;
+    while ((match = pattern.exec(maxPartition)) !== null) lastMatch = match;
+
+    if (!lastMatch) throw 'Uh Oh, what do we do?';
+
+    const splitIndex = lastMatch.index + lastMatch.length;
+    const partition = text.slice(0, splitIndex).trimEnd();
+    const rest = text.slice(splitIndex).trimStart();
+
+    return [partition, rest];
 }
