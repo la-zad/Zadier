@@ -10,7 +10,7 @@ type SlashCommandDescriptor = SlashCommandBuilder | Omit<SlashCommandBuilder, 'a
 
 export type Command = {
     data: SlashCommandDescriptor;
-    execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+    execute: (interaction: ChatInputCommandInteraction) => Promise<unknown>;
 };
 
 export const COMMANDS: Array<Command> = [PING, SDXL_TURBO, GEN_EMOJI, ANNOY, ASK_MIXTRAL];

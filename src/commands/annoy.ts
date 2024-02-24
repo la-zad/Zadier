@@ -42,7 +42,7 @@ export const ANNOY: Command = {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const choosenGif = DONE_GIFs.at(Math.floor(Math.random() * DONE_GIFs.length))!;
 
-        await interaction.reply({
+        return interaction.reply({
             content: choosenGif,
             ephemeral: true,
         });

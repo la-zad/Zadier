@@ -35,7 +35,7 @@ export const SDXL_TURBO: Command = {
 
         const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
 
-        await interaction.editReply({
+        return interaction.editReply({
             content: msg,
             files: [image],
         });

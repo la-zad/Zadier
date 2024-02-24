@@ -64,7 +64,7 @@ export const GEN_EMOJI: Command = {
         };
         const new_emoji = await guild.emojis.create(emoji_options);
         setTimeout(() => void new_emoji.delete(), DURATION_TMP_EMOJI.milliseconds);
-        await interaction.editReply({
+        return interaction.editReply({
             content: new_emoji.toString(),
         });
     },
