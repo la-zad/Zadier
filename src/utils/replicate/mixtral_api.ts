@@ -39,31 +39,58 @@ function send_msg(sender: CommandInteraction | Message, msg: string): Promise<Me
         return sender.reply(msg);
     }
 }
-
-export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
-    let msg = '';
-    let last_time = Date.now();
-    let sender: CommandInteraction | Message = interaction;
-    let defer_await: Promise<Message<boolean>> | null = null;
-    for await (const event of REPLICATE.stream(MODEL, { input })) {
-        if (event.event === 'output') {
-            msg += event.data;
-        }
-        while (msg.length > MAX_MESSAGE_LENGTH) {
-            const [message, shrink] = partition_text(msg, MAX_MESSAGE_LENGTH, PARTITIONING_PATTERNS.END_OF_SENTENCE);
-            if (defer_await) await defer_await;
-            defer_await = send_msg(sender, message);
-            msg = shrink;
-            //prevent sending empty message
-            const shrink_send = shrink === '' ? '.' : shrink;
-            sender = await (isCommandInteraction(sender) ? sender.followUp(shrink_send) : sender.reply(shrink_send));
-            last_time = Date.now();
-        }
-        if (Date.now() - last_time > 500 && msg !== '') {
-            if (defer_await) await defer_await;
-            defer_await = send_msg(sender, msg);
-            last_time = Date.now();
+class Sender {
+    private last_time = Date.now();
+    private msg: string = '';
+    private defer_await: Promise<Message<boolean>> | null = null;
+    constructor(public sender: CommandInteraction | Message) {}
+    public append(text: string): void {
+        this.msg += text;
+    }
+    public async send_deferred(now = false): Promise<void> {
+        if (now || Date.now() - this.last_time > 500) {
+            if (this.msg !== '') {
+                if (this.defer_await) await this.defer_await;
+                this.defer_await = this.send_message();
+                await this.manage_overflow();
+            }
+            this.last_time = Date.now();
         }
     }
-    await interaction.editReply(msg);
+    private send_message(): Promise<Message<boolean>> {
+        if (isCommandInteraction(this.sender)) {
+            return this.sender.editReply(this.msg);
+        } else {
+            return this.sender.reply(this.msg);
+        }
+    }
+    async manage_overflow(): Promise<void> {
+        while (this.msg.length > MAX_MESSAGE_LENGTH) {
+            const [message, shrink] = partition_text(
+                this.msg,
+                MAX_MESSAGE_LENGTH,
+                PARTITIONING_PATTERNS.END_OF_SENTENCE,
+            );
+            if (this.defer_await) await this.defer_await;
+            this.defer_await = send_msg(this.sender, message);
+            this.msg = shrink;
+            //prevent sending empty message
+            const shrink_send = shrink === '' ? '.' : shrink;
+            this.sender = await (isCommandInteraction(this.sender)
+                ? this.sender.followUp(shrink_send)
+                : this.sender.reply(shrink_send));
+            this.last_time = Date.now();
+        }
+    }
+}
+
+export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
+    const replier = new Sender(interaction);
+    for await (const event of REPLICATE.stream(MODEL, { input })) {
+        if (event.event === 'output') {
+            replier.append(event.data);
+            await replier.send_deferred();
+        }
+    }
+    await replier.send_deferred(true);
 }
