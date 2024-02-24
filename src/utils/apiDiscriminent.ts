@@ -1,4 +1,12 @@
-import type { APIInteractionDataResolvedGuildMember, APIRole, GuildMember, Role } from 'discord.js';
+import type {
+    APIInteractionDataResolvedChannel,
+    APIInteractionDataResolvedGuildMember,
+    APIRole,
+    GuildBasedChannel,
+    GuildMember,
+    GuildTextBasedChannel,
+    Role,
+} from 'discord.js';
 
 export function isRoleNotAPIRole(arg?: Role | APIRole | null): arg is Role {
     return is<Role, APIRole>(arg, 'guild');
@@ -8,6 +16,18 @@ export function isGuildMemberNotAPIGuildMember(
     arg?: GuildMember | APIInteractionDataResolvedGuildMember | null,
 ): arg is GuildMember {
     return is<GuildMember, APIInteractionDataResolvedGuildMember>(arg, 'user');
+}
+
+export function isGuildBasedChannelNotAPIGuildBasedChannel(
+    arg?: GuildBasedChannel | APIInteractionDataResolvedChannel | null,
+): arg is GuildBasedChannel {
+    return is<GuildBasedChannel, APIInteractionDataResolvedChannel>(arg, 'guild');
+}
+
+export function isGuildTextBasedChannelNotGuildBasedChannel(
+    arg?: GuildTextBasedChannel | GuildBasedChannel | null,
+): arg is GuildTextBasedChannel {
+    return is<GuildTextBasedChannel, GuildBasedChannel>(arg, 'messages');
 }
 
 /**
