@@ -1,6 +1,5 @@
 import { partition_text, PARTITIONING_PATTERNS } from '@utils/text';
 import type { CacheType, CommandInteraction, Message } from 'discord.js';
-import type { Prediction } from 'replicate';
 
 import { REPLICATE } from '.';
 
@@ -80,82 +79,11 @@ class Sender {
     }
 }
 
-async function createPrediction(input: InputType): Promise<Prediction> {
-    return REPLICATE.predictions.create({
-        input,
-        model: MODEL,
-        stream: true,
-    });
-}
+type Output = string[];
 
 export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
-    const BASE_URL = 'https://api.replicate.com/v1';
     const replier = new Sender(interaction);
-    const ID = Date.now();
-    console.log(`New request (ID: ${ID})`);
-    // const stream = REPLICATE.stream(MODEL, { input })
-    try {
-        const prediction = await createPrediction(input);
-        // const res = await fetch(`${BASE_URL}/models/${MODEL}/predictions`, {
-        //     method: 'POST',
-        //     headers: {
-        //         Authorization: `Token ${REPLICATE.auth}`,
-        //         'Content-Type': 'text/event-stream',
-        //         'User-Agent': `Zadier/1.0.0`,
-        //     },
-        //     body: JSON.stringify({ input }),
-        // });
-        if (!prediction.urls?.stream) throw 'Error Replicate - No stream';
-
-        const stream = await fetch(prediction.urls.stream, {
-            headers: {
-                Accept: 'text/event-stream',
-            },
-        });
-        const reader = stream.body?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
-        if (!reader) throw 'Error Replicate - No stream';
-        let last_event_id = '';
-        let event = '';
-        let quit = false;
-        for (; !quit; ) {
-            const evt = await reader.read();
-            if (evt.done) return;
-
-            const value_string = new TextDecoder('utf-8').decode(evt.value);
-            for (const line of value_string.split('\n')) {
-                if (line === '') continue;
-
-                const [field, value] = line.split(': ');
-                if (!(field && value)) continue;
-
-                switch (field) {
-                    case 'event':
-                        event = value;
-                        break;
-                    case 'id':
-                        last_event_id = value;
-                        break;
-                    case 'data':
-                        switch (event) {
-                            case 'error':
-                                throw `Error Replicate (ID: ${ID} at ${last_event_id}) - ${value}`;
-                            case 'done':
-                                quit = true;
-                                break;
-                            default:
-                                replier.append(value);
-                                await replier.send_deferred();
-                                break;
-                        }
-                        break;
-                }
-
-                if (quit) break;
-            }
-        }
-    } catch (error) {
-        console.error(`Error Replicate (ID: ${ID}) - `, error);
-    }
-    console.log(`End request (ID: ${ID})`);
+    const response = (await REPLICATE.run(MODEL, { input })) as Output;
+    replier.append(response.join(''));
     await replier.send_deferred(true);
 }
