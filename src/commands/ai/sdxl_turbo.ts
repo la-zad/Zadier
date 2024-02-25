@@ -1,4 +1,5 @@
 import type { Command } from '@commands';
+import { BotError } from '@utils/error';
 import { DEFAULT_VALUE, EventReader } from '@utils/hugging_face';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -32,12 +33,10 @@ export const SDXL_TURBO: Command = {
         };
 
         const image = await EventReader.generateImage(options);
-        if (!image) throw 'Un problème est survenu...';
-
-        const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
+        if (!image) throw new BotError('command', 'critical', 'make_emoji', 'Un problème est survenu...');
 
         return interaction.editReply({
-            content: msg,
+            content: `> ${options.prompt}\nGraine : ${options.seed}`,
             files: [image],
         });
     },

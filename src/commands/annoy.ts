@@ -1,4 +1,5 @@
 import type { Command } from '@commands';
+import { BotError } from '@utils/error';
 import { ChannelType, SlashCommandBuilder } from 'discord.js';
 
 const ANNOYABLE_CHANNELS_TYPES = [ChannelType.GuildText] as const;
@@ -34,7 +35,7 @@ export const ANNOY: Command = {
         const channelMention =
             interaction.options.getChannel('channel', false, ANNOYABLE_CHANNELS_TYPES) ?? interaction.channel;
 
-        if (!channelMention) throw 'How did we get here ?';
+        if (!channelMention) throw new BotError('command', 'critical', 'annoy', 'How did we get here ?');
 
         const ghostPing = await channelMention.send(`${ping.toString()}`);
         await ghostPing.delete();

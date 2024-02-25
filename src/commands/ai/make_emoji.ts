@@ -1,5 +1,6 @@
 import type { Command } from '@commands';
 import { DURATION_TMP_EMOJI } from '@constants';
+import { BotError } from '@utils/error';
 import { DEFAULT_VALUE, EventReader } from '@utils/hugging_face';
 import { SlashCommandBuilder } from 'discord.js';
 import Jimp from 'jimp';
@@ -37,11 +38,18 @@ export const GEN_EMOJI: Command = {
         const img_attach = interaction.options.getAttachment('image');
 
         const guild = interaction.guild;
-        if (!guild) throw 'La commande doit être utilisée dans un serveur.';
+        if (!guild)
+            throw new BotError('command', 'warning', 'make_emoji', 'La commande doit être utilisée dans un serveur.');
 
         if (img_attach) {
             const resp = await fetch(img_attach.url);
-            if (!resp) throw "Un problème est survenu lors de la récupération de l'image...";
+            if (!resp)
+                throw new BotError(
+                    'command',
+                    'critical',
+                    'make_emoji',
+                    `Un problème est survenu lors de la récupération de l'image...`,
+                );
 
             image = Buffer.from(await resp.arrayBuffer());
         } else {
@@ -51,11 +59,12 @@ export const GEN_EMOJI: Command = {
                 seed: interaction.options.getInteger('seed') ?? DEFAULT_VALUE.seed,
             };
             const img_generated = await EventReader.generateImage(hf_options);
-            if (!img_generated) throw "l'image n'a pas pu être générée.";
+            if (!img_generated)
+                throw new BotError('command', 'critical', 'make_emoji', `l'image n'a pas pu être générée.`);
 
             image = img_generated.attachment;
         }
-        if (!image) throw 'Un problème est survenu...';
+        if (!image) throw new BotError('command', 'critical', 'make_emoji', `Un problème est survenu...`);
 
         const jimp_image = await Jimp.read(image);
         const shrunk_image = shrink_image(jimp_image);
