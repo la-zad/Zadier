@@ -1,5 +1,4 @@
 import type { Command } from '@commands';
-import { check_authentication } from '@utils/replicate';
 import { DEFAULT_MIXTRAL_VALUES, execute as mixtral_execute } from '@utils/replicate/mixtral_api';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -58,10 +57,6 @@ export const ASK_MIXTRAL: Command = {
         ),
     async execute(interaction) {
         await interaction.deferReply();
-
-        if (!check_authentication()) {
-            throw "Le token de replicate n'a pas été défini!";
-        }
 
         const input = {
             prompt: interaction.options.getString('prompt', true),
