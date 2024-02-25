@@ -39,13 +39,13 @@ export const GEN_EMOJI: Command = {
 
         const guild = interaction.guild;
         if (!guild)
-            throw new BotError('command', 'warning', 'make_emoji', 'La commande doit être utilisée dans un serveur.');
+            throw new BotError('COMMAND', 'warning', 'make_emoji', 'La commande doit être utilisée dans un serveur.');
 
         if (img_attach) {
             const resp = await fetch(img_attach.url);
             if (!resp)
                 throw new BotError(
-                    'command',
+                    'COMMAND',
                     'critical',
                     'make_emoji',
                     `Un problème est survenu lors de la récupération de l'image...`,
@@ -60,11 +60,11 @@ export const GEN_EMOJI: Command = {
             };
             const img_generated = await EventReader.generateImage(hf_options);
             if (!img_generated)
-                throw new BotError('command', 'critical', 'make_emoji', `l'image n'a pas pu être générée.`);
+                throw new BotError('COMMAND', 'critical', 'make_emoji', `l'image n'a pas pu être générée.`);
 
             image = img_generated.attachment;
         }
-        if (!image) throw new BotError('command', 'critical', 'make_emoji', `Un problème est survenu...`);
+        if (!image) throw new BotError('COMMAND', 'critical', 'make_emoji', `Un problème est survenu...`);
 
         const jimp_image = await Jimp.read(image);
         const shrunk_image = shrink_image(jimp_image);

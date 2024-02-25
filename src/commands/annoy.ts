@@ -35,7 +35,7 @@ export const ANNOY: Command = {
         const channelMention =
             interaction.options.getChannel('channel', false, ANNOYABLE_CHANNELS_TYPES) ?? interaction.channel;
 
-        if (!channelMention) throw new BotError('command', 'critical', 'annoy', 'How did we get here ?');
+        if (!channelMention) throw new BotError('COMMAND', 'critical', 'annoy', 'How did we get here ?');
 
         const ghostPing = await channelMention.send(`${ping.toString()}`);
         await ghostPing.delete();

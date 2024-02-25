@@ -33,7 +33,7 @@ export const SDXL_TURBO: Command = {
         };
 
         const image = await EventReader.generateImage(options);
-        if (!image) throw new BotError('command', 'critical', 'make_emoji', 'Un problème est survenu...');
+        if (!image) throw new BotError('COMMAND', 'critical', 'make_emoji', 'Un problème est survenu...');
 
         return interaction.editReply({
             content: `> ${options.prompt}\nGraine : ${options.seed}`,

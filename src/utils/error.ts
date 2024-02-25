@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 export class BotError {
     constructor(
-        public kind: 'command' | 'event' | 'internal',
+        public kind: 'COMMAND' | 'EVENT' | 'INTERNAL',
         public severity: 'info' | 'warning' | 'critical' | 'fatal',
         public thrower: string,
         public message: string,
