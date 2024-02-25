@@ -44,7 +44,7 @@ export const ANNOY: Command = {
 
         return interaction.reply({
             content: choosenGif,
-            ephemeral: true,
+            ephemeral: Math.random() > 0.2,
         });
     },
 };
