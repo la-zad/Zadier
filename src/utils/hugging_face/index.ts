@@ -1,6 +1,4 @@
-import { EventReader } from './cmd_handler';
-
-export { EventReader };
+export { EventReader } from './cmd_handler';
 
 export const MAX_SEED_API = 12013012031030;
 
