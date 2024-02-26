@@ -7,13 +7,16 @@ interface EventEstimation {
     rank_eta: number;
     queue_eta: number;
 }
+
 interface EventSendData {
     msg: 'send_data';
     event_id: string;
 }
+
 interface EventProcessStart {
     msg: 'process_starts';
 }
+
 interface EventProcessCompleted {
     msg: 'process_completed';
     output?: Output;
@@ -28,6 +31,7 @@ export interface Input {
     steps: number;
     seed: number;
 }
+
 export interface InputData {
     session_hash: string;
     input: Input;

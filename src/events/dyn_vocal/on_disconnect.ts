@@ -10,7 +10,7 @@ export const DYN_VOCAL_ON_DISCONNECT: BotEvent = {
     once: false,
     name: 'Dynamic vocal channel - on disconnect',
     listenTo: 'voiceStateUpdate',
-    async execute({ channel }, _) {
+    async execute({ channel }) {
         if (!channel || !channel.name.startsWith('Nouveau') || channel.members.size) return;
 
         await channel.delete();

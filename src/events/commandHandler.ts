@@ -1,5 +1,6 @@
 import { Bot } from '@bot';
 import type { BotEvent } from '@events';
+import { BotError } from '@utils/error';
 
 /**
  * @event       - Command Handler
@@ -11,7 +12,7 @@ export const COMMAND_HANDLER: BotEvent = {
     listenTo: 'interactionCreate',
     async execute(interaction) {
         if (!Bot.isBot(interaction.client)) return console.error('Client is not a Bot. WTF?');
-        if (!interaction.isCommand()) return console.log('Not a command.');
+        if (!interaction.isChatInputCommand()) return console.log('Not a command.');
 
         const command = interaction.client.slashCommands.get(interaction.commandName);
 
@@ -20,15 +21,19 @@ export const COMMAND_HANDLER: BotEvent = {
         try {
             await command.execute(interaction);
         } catch (error) {
-            console.error(error);
-            const reply = {
-                content: 'There was an error while executing this command!',
-                ephemeral: true,
-            };
-            if (interaction.replied || interaction.deferred) {
-                await interaction.editReply(reply);
+            const reply =
+                interaction.replied || interaction.deferred
+                    ? interaction.editReply.bind(interaction)
+                    : interaction.reply.bind(interaction);
+
+            if (BotError.isBotError(error)) {
+                await reply({
+                    embeds: [error.toEmbed()],
+                    ephemeral: error.ephemeral,
+                });
+                console.error(error.toString());
             } else {
-                await interaction.reply(reply);
+                console.error(error);
             }
         }
     },
