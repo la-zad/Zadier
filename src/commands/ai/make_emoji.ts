@@ -55,7 +55,7 @@ export const GEN_EMOJI: Command = {
         } else {
             const hf_options = {
                 ...DEFAULT_VALUE,
-                prompt: interaction.options.getString('ai_prompt', true),
+                prompt: interaction.options.getString('ai_prompt') ?? '',
                 seed: interaction.options.getInteger('seed') ?? DEFAULT_VALUE.seed,
             };
             const img_generated = await EventReader.generateImage(hf_options);
