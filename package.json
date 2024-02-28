@@ -2,6 +2,7 @@
   "name": "zadier",
   "module": "src/index.ts",
   "type": "module",
+  "version": "1.0.0",
   "scripts": {
     "dev": "bun src/index.ts",
     "dev:hot": "bun --hot src/index.ts",

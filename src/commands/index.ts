@@ -5,6 +5,7 @@ import { GEN_EMOJI } from './ai/make_emoji';
 import { SDXL_TURBO } from './ai/sdxl_turbo';
 import { ANNOY } from './annoy';
 import { PING } from './ping';
+import { STATUS } from './status';
 
 type SlashCommandDescriptor = SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 
@@ -13,4 +14,4 @@ export type Command = {
     execute: (interaction: ChatInputCommandInteraction) => Promise<unknown>;
 };
 
-export const COMMANDS: Array<Command> = [PING, SDXL_TURBO, GEN_EMOJI, ANNOY, ASK_MIXTRAL];
+export const COMMANDS: Array<Command> = [PING, SDXL_TURBO, GEN_EMOJI, ANNOY, ASK_MIXTRAL, STATUS];
