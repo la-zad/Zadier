@@ -1,6 +1,7 @@
 import { Bot } from '@bot';
 import type { BotEvent } from '@events';
 import { BotError } from '@utils/error';
+import { LOG } from '@utils/log';
 
 /**
  * @event       - Command Handler
@@ -11,8 +12,8 @@ export const COMMAND_HANDLER: BotEvent = {
     name: 'Command Handler',
     listenTo: 'interactionCreate',
     async execute(interaction) {
-        if (!Bot.isBot(interaction.client)) return console.error('Client is not a Bot. WTF?');
-        if (!interaction.isChatInputCommand()) return console.log('Not a command.');
+        if (!Bot.isBot(interaction.client)) return LOG.error('Client is not a Bot. WTF?');
+        if (!interaction.isChatInputCommand()) return LOG.trace('Not a command.');
 
         const command = interaction.client.slashCommands.get(interaction.commandName);
 
