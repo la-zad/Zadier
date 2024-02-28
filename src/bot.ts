@@ -2,6 +2,7 @@ import type { Command } from '@commands';
 import { COMMANDS } from '@commands';
 import type { SpecificBotEvent } from '@events';
 import { EVENTS } from '@events';
+import { LOG } from '@utils/log';
 import type { OAuth2Guild } from 'discord.js';
 import { Client, Collection, GatewayIntentBits, REST, Routes } from 'discord.js';
 
@@ -55,12 +56,12 @@ export class Bot extends Client {
 
         const rest = new REST().setToken(this.TOKEN);
 
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        LOG.info(`Started refreshing ${commands.length} application (/) commands.`);
 
         for (const guild of guilds.values()) {
             try {
                 await rest.put(Routes.applicationGuildCommands(this.CLIENT_ID, guild.id), { body: commands });
-                console.log(`Successfully reloaded application (/) commands for guild: ${guild.name}`);
+                LOG.info(`Successfully reloaded application (/) commands for guild: ${guild.name}`);
             } catch (error) {
                 console.error(error);
             }

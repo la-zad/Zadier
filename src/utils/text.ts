@@ -1,3 +1,5 @@
+import path from 'path';
+
 export type PARTITIONING_PATTERNS = (typeof PARTITIONING_PATTERNS)[keyof typeof PARTITIONING_PATTERNS];
 export const PARTITIONING_PATTERNS = {
     END_OF_SENTENCE: /[.!?](\s|\n|$)/g,
@@ -34,4 +36,9 @@ export function partition_text(text: string, max_length: number, pattern: RegExp
     const rest = text.slice(idx).trimStart();
 
     return [partition, rest];
+}
+
+export function relativeToProject(absolute: string): string {
+    const cd = process.cwd();
+    return path.relative(cd, absolute);
 }
