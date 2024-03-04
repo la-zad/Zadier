@@ -1,10 +1,15 @@
 import type { Command } from '@commands';
-import {
-    isGuildBasedChannelNotAPIGuildBasedChannel,
-    isGuildMemberNotAPIGuildMember,
-    isGuildTextBasedChannelNotGuildBasedChannel,
-} from '@utils/discord_type_guards';
-import { SlashCommandBuilder } from 'discord.js';
+import { BotError } from '@utils/error';
+import { ChannelType, SlashCommandBuilder } from 'discord.js';
+
+const ANNOYABLE_CHANNELS_TYPES = [ChannelType.GuildText] as const;
+const DONE_GIFs = [
+    'https://tenor.com/view/missionaccomplished-emperorsnewgroove-kronk-gif-4514330',
+    'https://tenor.com/view/batman-approves-approve-thumbs-up-well-done-okay-gif-5025845',
+    'https://tenor.com/view/evil-laugh-bye-gif-9017647',
+    'https://tenor.com/view/mission-complete-spongebob-done-gif-11766934',
+    'https://tenor.com/view/harry-potter-marauders-map-mischief-managed-gif-16088629',
+];
 
 /**
  * @command     - annoy
@@ -15,35 +20,32 @@ export const ANNOY: Command = {
     data: new SlashCommandBuilder()
         .setName('annoy')
         .setDescription('Ghostping someone')
-        .addMentionableOption((option) =>
-            option.setName('ping').setDescription('The User you want to piss off').setRequired(true),
+        .addUserOption((option) =>
+            option.setName('user').setDescription('The User you want to piss off').setRequired(true),
         )
         .addChannelOption((option) =>
             option
                 .setName('channel')
                 .setDescription('The channel you want the ghostping to take place (default: here)')
+                .addChannelTypes(...ANNOYABLE_CHANNELS_TYPES)
                 .setRequired(false),
         ),
     async execute(interaction) {
-        const ping = interaction.options.get('ping', true);
-        if (!isGuildMemberNotAPIGuildMember(ping.member)) throw 'Can only ping a user';
+        const ping = interaction.options.getUser('user', true);
+        const channelMention =
+            interaction.options.getChannel('channel', false, ANNOYABLE_CHANNELS_TYPES) ?? interaction.channel;
 
-        let ghostPingChannel = interaction.channel;
-        const channelMention = interaction.options.get('channel');
+        if (!channelMention) throw new BotError('COMMAND', 'critical', 'annoy', 'How did we get here ?');
 
-        if (channelMention) {
-            const { channel } = channelMention;
-            if (!isGuildBasedChannelNotAPIGuildBasedChannel(channel)) throw 'I can only ghostping in a guild channel';
-            if (!isGuildTextBasedChannelNotGuildBasedChannel(channel)) throw 'Can only send messages in text channel';
-            ghostPingChannel = channel;
-        }
+        const ghostPing = await channelMention.send(`${ping.toString()}`);
+        await ghostPing.delete();
 
-        const ghostPing = await ghostPingChannel?.send(`${ping.member.toString()}`);
-        await ghostPing?.delete();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const choosenGif = DONE_GIFs.at(Math.floor(Math.random() * DONE_GIFs.length))!;
 
-        await interaction.reply({
-            content: 'https://tenor.com/view/missionaccomplished-emperorsnewgroove-kronk-gif-4514330',
-            ephemeral: true,
+        return interaction.reply({
+            content: choosenGif,
+            ephemeral: Math.random() > 0.2,
         });
     },
 };

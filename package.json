@@ -14,19 +14,19 @@
     "start": "bun ./out/index.js"
   },
   "devDependencies": {
-    "@vic1707/eslint-config": "^5.1.0",
+    "@vic1707/eslint-config": "^6.0.1",
     "@vic1707/prettier": "^2.0.1",
     "@vic1707/tsconfig": "^5.0.0",
     "bun-types": "latest",
-    "eslint": "^8.54.0",
-    "prettier": "^3.1.0"
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
   },
   "dependencies": {
     "discord.js": "^14.14.1",
-    "jimp": "^0.22.10",
-    "replicate": "^0.26.0",
-    "typescript": "^5.3.2",
-    "valibot": "^0.21.0"
+    "jimp": "^0.22.12",
+    "replicate": "^0.27.1",
+    "typescript": "^5.3.3",
+    "valibot": "^0.29.0"
   },
   "prettier": "@vic1707/prettier"
 }

@@ -72,10 +72,12 @@ function intoEvent(value_string: string): Event | null {
 
 export class EventReader {
     private img: Option<Attachment> = null;
+
     public constructor(
         private reader: ReadableStreamDefaultReader<Uint8Array>,
         private data: InputData,
     ) {}
+
     public image(): Option<typeof this.img> {
         return this.img;
     }
@@ -97,6 +99,7 @@ export class EventReader {
             }
         }
     }
+
     public static async generateImage(input: Input): Promise<Option<Attachment>> {
         const CHARSET = '0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -120,6 +123,7 @@ export class EventReader {
 
         return event_reader.image();
     }
+
     private async processEvent(evt: Event): Promise<boolean> {
         switch (evt.msg) {
             case 'estimation':

@@ -1,4 +1,5 @@
 import type { Command } from '@commands';
+import { BotError } from '@utils/error';
 import { DEFAULT_VALUE, EventReader } from '@utils/hugging_face';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -15,28 +16,27 @@ export const SDXL_TURBO: Command = {
         .addNumberOption((option) =>
             option.setName('strength').setDescription('La force du bruitage (0.7 par défaut)').setRequired(false),
         )
-        .addNumberOption((option) =>
+        .addIntegerOption((option) =>
             option.setName('steps').setDescription("Le nombre d'étapes (2 par défaut)").setRequired(false),
         )
-        .addNumberOption((option) =>
+        .addIntegerOption((option) =>
             option.setName('seed').setDescription('La graine (aléatoire par défaut)').setRequired(false),
         ),
     async execute(interaction) {
         await interaction.deferReply();
+
         const options = {
-            prompt: interaction.options.get('prompt', true).value as string,
-            seed: (interaction.options.get('seed')?.value as number) ?? DEFAULT_VALUE.seed,
-            strength: (interaction.options.get('strength')?.value as number) ?? DEFAULT_VALUE.strength,
-            steps: (interaction.options.get('steps')?.value as number) ?? DEFAULT_VALUE.steps,
+            prompt: interaction.options.getString('prompt', true),
+            seed: interaction.options.getInteger('seed') ?? DEFAULT_VALUE.seed,
+            strength: interaction.options.getNumber('strength') ?? DEFAULT_VALUE.strength,
+            steps: interaction.options.getInteger('steps') ?? DEFAULT_VALUE.steps,
         };
 
         const image = await EventReader.generateImage(options);
-        if (!image) throw 'Un problème est survenu...';
+        if (!image) throw new BotError('COMMAND', 'critical', 'make_emoji', 'Un problème est survenu...');
 
-        const msg = `> ${options.prompt}\nGraine : ${options.seed}`;
-
-        await interaction.editReply({
-            content: msg,
+        return interaction.editReply({
+            content: `> ${options.prompt}\nGraine : ${options.seed}`,
             files: [image],
         });
     },

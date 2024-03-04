@@ -37,28 +37,31 @@ class Sender {
     private last_time = Date.now();
     private msg: string = '';
     private defer_await: Promise<Message<boolean>> | null = null;
+
     constructor(public sender: CommandInteraction | Message) {}
+
     public append(text: string): void {
         this.msg += text;
     }
+
     public async send_deferred(now = false): Promise<void> {
         if (now || Date.now() - this.last_time > Sender.TICK_MILLISECONDS) {
             this.last_time = Date.now();
             if (this.msg === '') return;
 
-            await this.send_message();
+            if (this.defer_await) await this.defer_await;
+            this.send_message();
 
             await this.manage_overflow();
         }
     }
-    private async send_message(): Promise<void> {
-        if (this.defer_await) await this.defer_await;
-        if (isCommandInteraction(this.sender)) {
-            this.defer_await = this.sender.editReply(this.msg);
-        } else {
-            this.defer_await = this.sender.reply(this.msg);
-        }
+
+    private send_message(): void {
+        this.defer_await = isCommandInteraction(this.sender)
+            ? this.sender.editReply(this.msg)
+            : this.sender.edit(this.msg);
     }
+
     async manage_overflow(): Promise<void> {
         while (this.msg.length > MAX_MESSAGE_LENGTH) {
             const [message, shrunk] = partition_text(
@@ -67,7 +70,8 @@ class Sender {
                 PARTITIONING_PATTERNS.END_OF_SENTENCE,
             );
             this.msg = message;
-            await this.send_message();
+            if (this.defer_await) await this.defer_await;
+            this.send_message();
             this.defer_await = null;
             this.msg = shrunk;
             //prevent sending empty message
@@ -80,13 +84,11 @@ class Sender {
     }
 }
 
+type Output = string[];
+
 export async function execute(interaction: CommandInteraction<CacheType>, input: InputType): Promise<void> {
     const replier = new Sender(interaction);
-    for await (const event of REPLICATE.stream(MODEL, { input })) {
-        if (event.event === 'output') {
-            replier.append(event.data);
-            await replier.send_deferred();
-        }
-    }
+    const response = (await REPLICATE.run(MODEL, { input })) as Output;
+    replier.append(response.join(''));
     await replier.send_deferred(true);
 }
